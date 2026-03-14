@@ -1,0 +1,8 @@
+<resources>
+    <!-- Splash theme for Android 12+ -->
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@null</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+</resources>
