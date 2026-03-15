@@ -3,7 +3,7 @@ import { LocalTransactionRepository } from './transactionRepository.local';
 
 export type TransactionRepository = {
   create: (transaction: Transaction) => Promise<void>;
-  list: () => Promise<Transaction[]>;
+  list: (params: { limit: number; offset: number }) => Promise<Transaction[]>;
 };
 
 export const transactionRepository: TransactionRepository =

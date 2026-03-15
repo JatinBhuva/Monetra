@@ -9,4 +9,5 @@ export const colors = {
   categoryActiveBackground: '#EEF1FF',
   overlay: 'rgba(0,0,0,0.4)',
   error: '#D33A2C',
+  success: '#1F8B4C',
 };

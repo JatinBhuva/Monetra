@@ -7,6 +7,11 @@ type TransactionsState = {
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
   lastCreatedId: string | null;
+  offset: number;
+  pageSize: number;
+  hasMore: boolean;
+  isRefreshing: boolean;
+  isLoadingMore: boolean;
 };
 
 const initialState: TransactionsState = {
@@ -14,6 +19,11 @@ const initialState: TransactionsState = {
   status: 'idle',
   error: null,
   lastCreatedId: null,
+  offset: 0,
+  pageSize: 20,
+  hasMore: true,
+  isRefreshing: false,
+  isLoadingMore: false,
 };
 
 const transactionsSlice = createSlice({
@@ -26,24 +36,52 @@ const transactionsSlice = createSlice({
     },
     addTransactionSucceeded: (state, action: PayloadAction<Transaction>) => {
       state.status = 'idle';
-      state.items = [action.payload, ...state.items];
       state.lastCreatedId = action.payload.id;
     },
     addTransactionFailed: (state, action: PayloadAction<string>) => {
       state.status = 'failed';
       state.error = action.payload;
     },
-    loadTransactionsRequested: state => {
-      state.status = 'loading';
+    loadTransactionsRequested: (
+      state,
+      action: PayloadAction<{ refresh?: boolean; loadMore?: boolean } | undefined>,
+    ) => {
+      const refresh = action.payload?.refresh;
+      const loadMore = action.payload?.loadMore;
+      if (loadMore) {
+        state.isLoadingMore = true;
+      } else if (refresh) {
+        state.isRefreshing = true;
+      } else {
+        state.status = 'loading';
+      }
       state.error = null;
     },
-    loadTransactionsSucceeded: (state, action: PayloadAction<Transaction[]>) => {
+    loadTransactionsSucceeded: (
+      state,
+      action: PayloadAction<{
+        items: Transaction[];
+        refresh: boolean;
+        hasMore: boolean;
+        nextOffset: number;
+      }>,
+    ) => {
       state.status = 'idle';
-      state.items = action.payload;
+      if (action.payload.refresh) {
+        state.items = action.payload.items;
+      } else {
+        state.items = [...state.items, ...action.payload.items];
+      }
+      state.hasMore = action.payload.hasMore;
+      state.offset = action.payload.nextOffset;
+      state.isRefreshing = false;
+      state.isLoadingMore = false;
     },
     loadTransactionsFailed: (state, action: PayloadAction<string>) => {
       state.status = 'failed';
       state.error = action.payload;
+      state.isRefreshing = false;
+      state.isLoadingMore = false;
     },
   },
 });
