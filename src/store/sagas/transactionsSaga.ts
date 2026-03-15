@@ -10,6 +10,9 @@ import {
   loadTransactionsFailed,
   loadTransactionsRequested,
   loadTransactionsSucceeded,
+  loadMonthlyStatsRequested,
+  loadMonthlyStatsSucceeded,
+  loadMonthlyStatsFailed,
 } from '../transactionsSlice';
 
 function* handleAddTransaction(action: { payload: Transaction }) {
@@ -62,7 +65,38 @@ function* handleLoadTransactions(
   }
 }
 
+function* handleLoadMonthlyStats() {
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const stats: {
+      expenseTotal: number;
+      incomeTotal: number;
+      count: number;
+    } = yield call([transactionRepository, transactionRepository.getMonthlyStats], {
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+    });
+
+    yield put(
+      loadMonthlyStatsSucceeded({
+        expenseTotal: stats.expenseTotal,
+        count: stats.count,
+      }),
+    );
+  } catch (error) {
+    yield put(
+      loadMonthlyStatsFailed(
+        error instanceof Error ? error.message : 'Unknown error',
+      ),
+    );
+  }
+}
+
 export function* transactionsSaga() {
   yield takeLatest(addTransactionRequested.type, handleAddTransaction);
   yield takeLatest(loadTransactionsRequested.type, handleLoadTransactions);
+  yield takeLatest(loadMonthlyStatsRequested.type, handleLoadMonthlyStats);
 }

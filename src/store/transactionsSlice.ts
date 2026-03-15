@@ -12,6 +12,10 @@ type TransactionsState = {
   hasMore: boolean;
   isRefreshing: boolean;
   isLoadingMore: boolean;
+  monthExpenseTotal: number;
+  monthTransactionCount: number;
+  monthStatsStatus: 'idle' | 'loading' | 'failed';
+  monthStatsError: string | null;
 };
 
 const initialState: TransactionsState = {
@@ -24,6 +28,10 @@ const initialState: TransactionsState = {
   hasMore: true,
   isRefreshing: false,
   isLoadingMore: false,
+  monthExpenseTotal: 0,
+  monthTransactionCount: 0,
+  monthStatsStatus: 'idle',
+  monthStatsError: null,
 };
 
 const transactionsSlice = createSlice({
@@ -83,6 +91,22 @@ const transactionsSlice = createSlice({
       state.isRefreshing = false;
       state.isLoadingMore = false;
     },
+    loadMonthlyStatsRequested: state => {
+      state.monthStatsStatus = 'loading';
+      state.monthStatsError = null;
+    },
+    loadMonthlyStatsSucceeded: (
+      state,
+      action: PayloadAction<{ expenseTotal: number; count: number }>,
+    ) => {
+      state.monthStatsStatus = 'idle';
+      state.monthExpenseTotal = action.payload.expenseTotal;
+      state.monthTransactionCount = action.payload.count;
+    },
+    loadMonthlyStatsFailed: (state, action: PayloadAction<string>) => {
+      state.monthStatsStatus = 'failed';
+      state.monthStatsError = action.payload;
+    },
   },
 });
 
@@ -93,6 +117,9 @@ export const {
   loadTransactionsRequested,
   loadTransactionsSucceeded,
   loadTransactionsFailed,
+  loadMonthlyStatsRequested,
+  loadMonthlyStatsSucceeded,
+  loadMonthlyStatsFailed,
 } = transactionsSlice.actions;
 
 export const transactionsReducer = transactionsSlice.reducer;
