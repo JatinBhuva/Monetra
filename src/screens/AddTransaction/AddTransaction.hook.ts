@@ -64,6 +64,7 @@ export const useAddTransaction = ({
       return;
     }
 
+    const category = categories.find(item => item.id === selectedCategory);
     const transaction = {
       id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
       type: activeType,
@@ -71,6 +72,7 @@ export const useAddTransaction = ({
       description: description.trim(),
       categoryId: selectedCategory,
       date: selectedDate.toISOString(),
+      category,
     };
 
     setSubmittedId(transaction.id);

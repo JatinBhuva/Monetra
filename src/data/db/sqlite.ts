@@ -4,7 +4,7 @@ SQLite.enablePromise(true);
 
 const DB_NAME = 'monetra.db';
 const DB_LOCATION = 'default';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 3;
 
 let dbPromise: Promise<any> | null = null;
 
@@ -27,6 +27,17 @@ const setUserVersion = async (db: any, version: number) => {
   await db.executeSql(`PRAGMA user_version = ${version};`);
 };
 
+const hasColumn = async (db: any, table: string, column: string) => {
+  const [result] = await db.executeSql(`PRAGMA table_info(${table});`);
+  for (let i = 0; i < result.rows.length; i += 1) {
+    const row = result.rows.item(i);
+    if (row?.name === column) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const migrate = async (db: any) => {
   const currentVersion = await getUserVersion(db);
 
@@ -38,7 +49,8 @@ const migrate = async (db: any) => {
         amount TEXT NOT NULL,
         description TEXT NOT NULL,
         categoryId TEXT NOT NULL,
-        date TEXT NOT NULL
+        date TEXT NOT NULL,
+        categoryJson TEXT
       );`,
     );
     await db.executeSql(
@@ -83,6 +95,22 @@ const migrate = async (db: any) => {
     );
   }
 
+  if (currentVersion < 2) {
+    await db.executeSql(
+      `CREATE TABLE IF NOT EXISTS preferences (
+        key TEXT PRIMARY KEY NOT NULL,
+        value TEXT NOT NULL
+      );`,
+    );
+  }
+
+  if (currentVersion < 3) {
+    const hasCategoryJson = await hasColumn(db, 'transactions', 'categoryJson');
+    if (!hasCategoryJson) {
+      await db.executeSql('ALTER TABLE transactions ADD COLUMN categoryJson TEXT;');
+    }
+  }
+
   if (currentVersion < SCHEMA_VERSION) {
     await setUserVersion(db, SCHEMA_VERSION);
   }
@@ -102,6 +130,7 @@ export const resetDatabase = async () => {
   const db = await getDatabase();
   await db.executeSql('DROP TABLE IF EXISTS transactions;');
   await db.executeSql('DROP TABLE IF EXISTS categories;');
+  await db.executeSql('DROP TABLE IF EXISTS preferences;');
   await setUserVersion(db, 0);
   await migrate(db);
 };
