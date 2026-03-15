@@ -1,13 +1,15 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import DashboardScreen from '../screens/Dashboard';
+import AddTransactionScreen from '../screens/AddTransaction';
 import TransactionsScreen from '../screens/Transactions';
 import AnalysisScreen from '../screens/Analysis';
 import SettingsScreen from '../screens/Settings';
 import type { RootTabParamList } from '../types';
 import { ScreenConstants } from '../utils/constants';
+import { strings } from '../utils/strings';
 import { colors } from '../theme';
 
 import { assets } from '../assets';
@@ -49,7 +51,7 @@ export const RootTabNavigator = () => {
         name={ScreenConstants.DASHBOARD_SCREEN}
         component={DashboardScreen}
         options={{
-          title: 'Dashboard',
+          title: strings.navigation.dashboard,
           tabBarIcon: ({ color }) => <DashboardIcon width={24} height={24} fill={color} />,
         }}
       />
@@ -57,7 +59,7 @@ export const RootTabNavigator = () => {
         name={ScreenConstants.TRANSACTIONS_SCREEN}
         component={TransactionsScreen}
         options={{
-          title: 'Transactions',
+          title: strings.navigation.transactions,
           tabBarIcon: ({ color }) => <TransactionsIcon width={24} height={24} fill={color} />,
         }}
       />
@@ -73,7 +75,7 @@ export const RootTabNavigator = () => {
               {...props}
               onPress={() => setIsAddOpen(true)}
               style={[styles.addButtonWrapper, props.style]}
-              accessibilityLabel="Add"
+              accessibilityLabel={strings.navigation.addAccessibility}
             >
               <View style={styles.addButton}>
                 <AddIcon width={24} height={24} fill="#FFFFFF" />
@@ -92,7 +94,7 @@ export const RootTabNavigator = () => {
         name={ScreenConstants.ANALYSIS_SCREEN}
         component={AnalysisScreen}
         options={{
-          title: 'Analysis',
+          title: strings.navigation.analysis,
           tabBarIcon: ({ color }) => <AnalysisIcon width={24} height={24} fill={color} />,
         }}
       />
@@ -100,21 +102,23 @@ export const RootTabNavigator = () => {
         name={ScreenConstants.SETTINGS_SCREEN}
         component={SettingsScreen}
         options={{
-          title: 'Settings',
+          title: strings.navigation.settings,
           tabBarIcon: ({ color }) => <SettingsIcon width={24} height={24} fill={color} />,
         }}
       />
     </Tab.Navigator>
       <Modal
         transparent
-        animationType="fade"
+        animationType="slide"
         visible={isAddOpen}
         onRequestClose={() => setIsAddOpen(false)}
       >
         <Pressable style={styles.modalBackdrop} onPress={() => setIsAddOpen(false)}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Add</Text>
-            <Text style={styles.modalSubtitle}>Your add action goes here.</Text>
+            <AddTransactionScreen
+              onClose={() => setIsAddOpen(false)}
+              accentColor={activeColor}
+            />
           </Pressable>
         </Pressable>
       </Modal>
@@ -145,12 +149,12 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#0B142A',
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#1D2A4A',
-    shadowColor: '#0B142A',
+    borderColor: colors.primary,
+    shadowColor: colors.primary,
     shadowOpacity: 0.2,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -181,24 +185,10 @@ const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
+    alignItems: 'stretch',
+    justifyContent: 'flex-end',
   },
   modalCard: {
-    width: '100%',
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0B142A',
-    marginBottom: 6,
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    color: '#5C667A',
+    flex: 1,
   },
 });

@@ -1,0 +1,47 @@
+export const strings = {
+  navigation: {
+    dashboard: 'Dashboard',
+    transactions: 'Transactions',
+    analysis: 'Analysis',
+    settings: 'Settings',
+    addAccessibility: 'Add',
+  },
+  transactionsScreen: {
+    title: 'Transactions',
+    subtitle: 'All expenses and income in one place.',
+  },
+  transactions: {
+    title: 'Add Transaction',
+    expense: 'Expense',
+    income: 'Income',
+    amountLabel: 'Amount',
+    amountPlaceholder: '0.00',
+    descriptionLabel: 'Description',
+    expensePlaceholder: 'What did you buy?',
+    incomePlaceholder: 'Source of income',
+    dateLabel: 'Date',
+    categoryLabel: 'Category',
+    addExpense: 'Add Expense',
+    addIncome: 'Add Income',
+    currencySymbol: '₹',
+    dateIcon: '📅',
+    closeIcon: '×',
+    dateLocale: 'en-IN',
+  },
+  categories: {
+    expense: {
+      food: 'Food',
+      transport: 'Transport',
+      shopping: 'Shopping',
+      entertainment: 'Entertainment',
+      bills: 'Bills',
+      health: 'Health',
+      other: 'Other',
+    },
+    income: {
+      salary: 'Salary',
+      freelance: 'Freelance',
+      other: 'Other',
+    },
+  },
+};

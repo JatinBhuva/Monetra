@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-import { ExampleInput } from '../../components';
+import { CustomInput } from '../../components';
 import { useDashboard } from './Dashboard.hook';
 import { styles } from './styles';
 
@@ -12,7 +12,7 @@ const DashboardScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Dashboard</Text>
       <Text style={styles.subtitle}>{greeting}</Text>
-      <ExampleInput label="Sample input" placeholder="Type here..." />
+      <CustomInput label="Sample input" placeholder="Type here..." />
     </View>
   );
 };
