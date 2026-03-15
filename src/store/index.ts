@@ -3,6 +3,7 @@ export type { RootState, AppDispatch } from './store';
 export {
   addTransactionRequested,
   loadTransactionsRequested,
+  loadMonthlyStatsRequested,
 } from './transactionsSlice';
 export { showPopup, hidePopup } from './uiSlice';
 export {

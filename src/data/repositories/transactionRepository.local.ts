@@ -82,4 +82,24 @@ export class LocalTransactionRepository implements TransactionRepository {
 
     return items;
   }
+
+  async getMonthlyStats(params: { startDate: string; endDate: string }) {
+    const db = await getDb();
+    const [result] = await db.executeSql(
+      `SELECT
+        SUM(CASE WHEN type = 'expense' THEN CAST(amount as REAL) ELSE 0 END) as expenseTotal,
+        SUM(CASE WHEN type = 'income' THEN CAST(amount as REAL) ELSE 0 END) as incomeTotal,
+        COUNT(*) as totalCount
+      FROM transactions
+      WHERE date >= ? AND date < ?;`,
+      [params.startDate, params.endDate],
+    );
+
+    const row = result.rows.item(0) ?? {};
+    return {
+      expenseTotal: Number(row.expenseTotal ?? 0),
+      incomeTotal: Number(row.incomeTotal ?? 0),
+      count: Number(row.totalCount ?? 0),
+    };
+  }
 }

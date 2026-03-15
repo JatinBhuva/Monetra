@@ -24,6 +24,14 @@ export const strings = {
     uncategorized: 'Uncategorized',
     monthTotalLabel: 'Total spent',
   },
+  dashboardScreen: {
+    title: 'Dashboard',
+    subtitle: 'Your money at a glance.',
+    monthSpendTitle: 'This Month',
+    monthSpendLabel: 'Spent so far',
+    recentTitle: 'Recent transactions',
+    emptyRecent: 'No transactions yet.',
+  },
   popup: {
     transactionAddedTitle: 'Transaction Added',
     transactionAddedMessage: 'Your transaction has been saved locally.',
