@@ -8,21 +8,9 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.s6,
     paddingBottom: spacing.xxl,
-  },
-  header: {
-    marginBottom: spacing.lg,
-  },
-  title: {
-    fontSize: typography.size.xl,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.s6,
-  },
-  subtitle: {
-    fontSize: typography.size.sm,
-    color: colors.muted,
   },
   heroCard: {
     backgroundColor: colors.primary,
@@ -72,57 +60,6 @@ export const styles = StyleSheet.create({
     fontSize: typography.size.md,
     fontWeight: typography.weight.semiBold,
     color: colors.textPrimary,
-  },
-  recentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: spacing.s16,
-    paddingVertical: spacing.s12,
-    paddingHorizontal: spacing.md,
-  },
-  recentIcon: {
-    width: spacing.s40,
-    height: spacing.s40,
-    borderRadius: spacing.s20,
-    backgroundColor: colors.categoryActiveBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  recentIconText: {
-    fontSize: typography.size.md,
-  },
-  recentContent: {
-    flex: 1,
-  },
-  recentTitle: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.s4,
-  },
-  recentSubtitle: {
-    fontSize: typography.size.sm,
-    color: colors.muted,
-  },
-  recentMeta: {
-    alignItems: 'flex-end',
-  },
-  recentDate: {
-    fontSize: typography.size.xs,
-    color: colors.muted,
-    marginBottom: spacing.s4,
-  },
-  recentAmount: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semiBold,
-  },
-  amountExpense: {
-    color: colors.error,
-  },
-  amountIncome: {
-    color: colors.success,
   },
   recentSeparator: {
     height: spacing.s10,

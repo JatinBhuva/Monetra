@@ -20,21 +20,12 @@ export const styles = StyleSheet.create({
     color: colors.primary,
   },
   listContent: {
-    padding: spacing.lg,
+    paddingTop: spacing.s6,
     paddingBottom: spacing.xxl,
   },
-  header: {
-    marginBottom: spacing.lg,
-  },
-  title: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.s6,
-  },
-  subtitle: {
-    fontSize: typography.size.sm,
-    color: colors.muted,
+  rowWrapper: {
+    marginBottom: spacing.s12,
+    marginHorizontal: spacing.lg,
   },
   emptyState: {
     backgroundColor: colors.surface,
@@ -44,6 +35,7 @@ export const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',
+    marginHorizontal: spacing.lg,
   },
   emptyTitle: {
     fontSize: typography.size.md,
@@ -62,6 +54,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     marginBottom: spacing.s8,
     marginTop: spacing.s6,
+    marginHorizontal: spacing.lg,
   },
   monthHeader: {
     flexDirection: 'row',
@@ -75,6 +68,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.s14,
     marginTop: spacing.s6,
     marginBottom: spacing.s12,
+    marginHorizontal: spacing.lg,
   },
   monthTitle: {
     fontSize: typography.size.md,
@@ -111,51 +105,5 @@ export const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     color: colors.muted,
     marginTop: -2,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: spacing.s16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.s12,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.s12,
-  },
-  iconCircle: {
-    width: spacing.s40,
-    height: spacing.s40,
-    borderRadius: spacing.s20,
-    backgroundColor: colors.categoryActiveBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  iconText: {
-    fontSize: typography.size.md,
-  },
-  rowContent: {
-    flex: 1,
-  },
-  categoryName: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.s4,
-  },
-  description: {
-    fontSize: typography.size.sm,
-    color: colors.muted,
-  },
-  amount: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semiBold,
-  },
-  amountExpense: {
-    color: colors.error,
-  },
-  amountIncome: {
-    color: colors.success,
   },
 });

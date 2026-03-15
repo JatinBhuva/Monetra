@@ -83,6 +83,77 @@ export class LocalTransactionRepository implements TransactionRepository {
     return items;
   }
 
+  async listByDateRange(params: {
+    startDate: string;
+    endDate: string;
+    limit?: number;
+  }) {
+    const db = await getDb();
+    const hasLimit = typeof params.limit === 'number';
+    const [result] = await db.executeSql(
+      `SELECT
+        t.id,
+        t.type,
+        t.amount,
+        t.description,
+        t.categoryId,
+        t.date,
+        t.categoryJson,
+        c.id as categoryIdRef,
+        c.type as categoryType,
+        c.name as categoryName,
+        c.emoji as categoryEmoji,
+        c.isDefault as categoryIsDefault,
+        c.labelKey as categoryLabelKey,
+        c.createdAt as categoryCreatedAt
+      FROM transactions t
+      LEFT JOIN categories c ON c.id = t.categoryId
+      WHERE t.date >= ? AND t.date < ?
+      ORDER BY t.date DESC
+      ${hasLimit ? 'LIMIT ?' : ''};`,
+      hasLimit
+        ? [params.startDate, params.endDate, params.limit]
+        : [params.startDate, params.endDate],
+    );
+
+    const rows = result.rows;
+    const items: Transaction[] = [];
+
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = rows.item(i);
+      let category: Transaction['category'];
+      if (row.categoryJson) {
+        try {
+          category = JSON.parse(row.categoryJson);
+        } catch {
+          category = undefined;
+        }
+      } else if (row.categoryIdRef) {
+        category = {
+          id: row.categoryIdRef,
+          type: row.categoryType,
+          name: row.categoryName,
+          emoji: row.categoryEmoji,
+          isDefault: Boolean(row.categoryIsDefault),
+          labelKey: row.categoryLabelKey,
+          createdAt: row.categoryCreatedAt,
+        };
+      }
+
+      items.push({
+        id: row.id,
+        type: row.type,
+        amount: row.amount,
+        description: row.description,
+        categoryId: row.categoryId,
+        date: row.date,
+        category,
+      });
+    }
+
+    return items;
+  }
+
   async getMonthlyStats(params: { startDate: string; endDate: string }) {
     const db = await getDb();
     const [result] = await db.executeSql(

@@ -8,18 +8,11 @@ export const styles = StyleSheet.create({
     alignItems: 'stretch',
     justifyContent: 'flex-start',
     backgroundColor: colors.background,
-    padding: spacing.lg,
   },
-  title: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontSize: typography.size.sm,
-    color: colors.muted,
-    marginBottom: spacing.lg,
+  content: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.s6,
+    paddingBottom: spacing.xxl,
   },
   section: {
     backgroundColor: colors.surface,
