@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 
 import { categoriesReducer } from './categoriesSlice';
+import { analyticsReducer } from './analyticsSlice';
 import { maintenanceReducer } from './maintenanceSlice';
 import { transactionsReducer } from './transactionsSlice';
 import { uiReducer } from './uiSlice';
@@ -11,6 +12,7 @@ const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
   reducer: {
+    analytics: analyticsReducer,
     categories: categoriesReducer,
     maintenance: maintenanceReducer,
     transactions: transactionsReducer,

@@ -3,10 +3,13 @@ import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 
 import { FlashList } from '@shopify/flash-list';
 
+import { TabHeader, TransactionRow } from '../../components';
 import { useDashboard } from './Dashboard.hook';
 import { styles } from './styles';
 import { strings } from '../../utils/strings';
 import type { Transaction } from '../../types/transactions';
+import { spacing } from '../../theme';
+import { useTabBarSpacing } from '../../hooks/useTabBarSpacing';
 
 const formatAmount = (amount: number) =>
   amount.toLocaleString(strings.transactions.dateLocale, {
@@ -26,35 +29,19 @@ const formatDateTime = (value: string) => {
 };
 
 const renderRecentItem = ({ item }: { item: Transaction }) => {
-  const isExpense = item.type === 'expense';
-  const sign = isExpense ? '-' : '+';
-  const amountColor = isExpense ? styles.amountExpense : styles.amountIncome;
-  const categoryName =
-    item.category?.name ?? strings.transactionsScreen.uncategorized;
-  const categoryEmoji = item.category?.emoji ?? '•';
+  const sign = item.type === 'expense' ? '-' : '+';
+  const amountLabel = `${sign}${strings.transactions.currencySymbol}${formatAmount(
+    Number(item.amount),
+  )}`;
 
   return (
-    <View style={styles.recentRow}>
-      <View style={styles.recentIcon}>
-        <Text style={styles.recentIconText}>{categoryEmoji}</Text>
-      </View>
-      <View style={styles.recentContent}>
-        <Text style={styles.recentTitle} numberOfLines={1}>
-          {categoryName}
-        </Text>
-        <Text style={styles.recentSubtitle} numberOfLines={1}>
-          {item.description}
-        </Text>
-      </View>
-      <View style={styles.recentMeta}>
-        <Text style={styles.recentDate}>{formatDateTime(item.date)}</Text>
-        <Text style={[styles.recentAmount, amountColor]}>
-          {sign}
-          {strings.transactions.currencySymbol}
-          {formatAmount(Number(item.amount))}
-        </Text>
-      </View>
-    </View>
+    <TransactionRow
+      transaction={item}
+      variant="compact"
+      topRightLabel={formatDateTime(item.date)}
+      amountLabel={amountLabel}
+      amountTone={item.type}
+    />
   );
 };
 
@@ -66,6 +53,7 @@ const DashboardScreen = () => {
     recentTransactions,
     monthLabel,
   } = useDashboard();
+  const tabBarSpacing = useTabBarSpacing(spacing.lg);
 
   const isLoading =
     status === 'loading' && monthStatsStatus === 'loading' && !recentTransactions.length;
@@ -76,11 +64,14 @@ const DashboardScreen = () => {
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{strings.dashboardScreen.title}</Text>
-        <Text style={styles.subtitle}>{strings.dashboardScreen.subtitle}</Text>
-      </View>
+    <View style={styles.container}>
+      <TabHeader
+        title={strings.dashboardScreen.title}
+        subtitle={strings.dashboardScreen.subtitle}
+      />
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarSpacing }]}
+      >
 
       <View style={styles.heroCard}>
         <View style={styles.heroTop}>
@@ -124,7 +115,8 @@ const DashboardScreen = () => {
           ItemSeparatorComponent={() => <View style={styles.recentSeparator} />}
         />
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 

@@ -1,5 +1,6 @@
 export { store } from './store';
 export type { RootState, AppDispatch } from './store';
+export { loadAnalyticsRequested } from './analyticsSlice';
 export {
   addTransactionRequested,
   loadTransactionsRequested,

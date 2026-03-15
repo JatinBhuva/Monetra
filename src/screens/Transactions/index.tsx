@@ -1,11 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 
+import { TabHeader, TransactionRow } from '../../components';
 import { strings } from '../../utils/strings';
 import { useTransactions } from './Transactions.hook';
 import { styles } from './styles';
 import type { Transaction } from '../../types/transactions';
+import { spacing } from '../../theme';
+import { useTabBarSpacing } from '../../hooks/useTabBarSpacing';
 
 type ListItem =
   | { kind: 'monthHeader'; id: string; label: string; total: string }
@@ -59,7 +62,9 @@ const getMonthLabel = (date: Date) =>
 
 const EmptyState = () => (
   <View style={styles.emptyState}>
-    <Text style={styles.emptyTitle}>{strings.transactionsScreen.emptyTitle}</Text>
+    <Text style={styles.emptyTitle}>
+      {strings.transactionsScreen.emptyTitle}
+    </Text>
     <Text style={styles.emptyMessage}>
       {strings.transactionsScreen.emptyMessage}
     </Text>
@@ -69,6 +74,7 @@ const EmptyState = () => (
 const TransactionsScreen = () => {
   const { items, status, isRefreshing, isLoadingMore, loadMore, refresh } =
     useTransactions();
+  const tabBarSpacing = useTabBarSpacing(spacing.xxl);
 
   const listData = useMemo<ListItem[]>(() => {
     if (!items.length) {
@@ -89,7 +95,8 @@ const TransactionsScreen = () => {
       const monthKey = getMonthKey(date);
       if (item.type === 'expense') {
         const value = Number(item.amount);
-        acc[monthKey] = (acc[monthKey] ?? 0) + (Number.isFinite(value) ? value : 0);
+        acc[monthKey] =
+          (acc[monthKey] ?? 0) + (Number.isFinite(value) ? value : 0);
       }
       return acc;
     }, {});
@@ -151,31 +158,18 @@ const TransactionsScreen = () => {
     }
 
     const { transaction } = item;
-    const isExpense = transaction.type === 'expense';
-    const sign = isExpense ? '-' : '+';
-    const amountColor = isExpense ? styles.amountExpense : styles.amountIncome;
-    const categoryName =
-      transaction.category?.name ?? strings.transactionsScreen.uncategorized;
-    const categoryEmoji = transaction.category?.emoji ?? '?';
+    const sign = transaction.type === 'expense' ? '-' : '+';
+    const amountLabel = `${sign}${
+      strings.transactions.currencySymbol
+    }${formatAmount(transaction.amount)}`;
 
     return (
-      <View style={styles.row}>
-        <View style={styles.iconCircle}>
-          <Text style={styles.iconText}>{categoryEmoji}</Text>
-        </View>
-        <View style={styles.rowContent}>
-          <Text style={styles.categoryName} numberOfLines={1}>
-            {categoryName}
-          </Text>
-          <Text style={styles.description} numberOfLines={1}>
-            {transaction.description}
-          </Text>
-        </View>
-        <Text style={[styles.amount, amountColor]} numberOfLines={1}>
-          {sign}
-          {strings.transactions.currencySymbol}
-          {formatAmount(transaction.amount)}
-        </Text>
+      <View style={styles.rowWrapper}>
+        <TransactionRow
+          transaction={transaction}
+          amountLabel={amountLabel}
+          amountTone={transaction.type}
+        />
       </View>
     );
   }, []);
@@ -184,6 +178,10 @@ const TransactionsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <TabHeader
+        title={strings.transactionsScreen.title}
+        subtitle={strings.transactionsScreen.subtitle}
+      />
       {isInitialLoading ? (
         <View style={styles.fullScreenLoader}>
           <ActivityIndicator size="large" color={styles.loader.color} />
@@ -194,21 +192,14 @@ const TransactionsScreen = () => {
           renderItem={renderItem}
           keyExtractor={item => item.id}
           estimatedItemSize={72}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={StyleSheet.flatten([
+            styles.listContent,
+            { paddingBottom: tabBarSpacing },
+          ])}
           onEndReached={loadMore}
           onEndReachedThreshold={0.4}
           onRefresh={refresh}
           refreshing={isRefreshing}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <Text style={styles.title}>
-                {strings.transactionsScreen.title}
-              </Text>
-              <Text style={styles.subtitle}>
-                {strings.transactionsScreen.subtitle}
-              </Text>
-            </View>
-          }
           ListEmptyComponent={EmptyState}
           ListFooterComponent={
             isLoadingMore ? (
