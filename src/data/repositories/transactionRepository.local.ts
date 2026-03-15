@@ -19,7 +19,8 @@ export class LocalTransactionRepository implements TransactionRepository {
     );
   }
 
-  async list() {
+  async list(params: { limit: number; offset: number }) {
+    const { limit, offset } = params;
     const db = await getDb();
     const [result] = await db.executeSql(
       `SELECT
@@ -39,7 +40,9 @@ export class LocalTransactionRepository implements TransactionRepository {
         c.createdAt as categoryCreatedAt
       FROM transactions t
       LEFT JOIN categories c ON c.id = t.categoryId
-      ORDER BY t.date DESC;`,
+      ORDER BY t.date DESC
+      LIMIT ? OFFSET ?;`,
+      [limit, offset],
     );
 
     const rows = result.rows;

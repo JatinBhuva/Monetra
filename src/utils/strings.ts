@@ -17,6 +17,12 @@ export const strings = {
   transactionsScreen: {
     title: 'Transactions',
     subtitle: 'All expenses and income in one place.',
+    emptyTitle: 'No transactions yet',
+    emptyMessage: 'Add your first expense or income to see it here.',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    uncategorized: 'Uncategorized',
+    monthTotalLabel: 'Total spent',
   },
   popup: {
     transactionAddedTitle: 'Transaction Added',
