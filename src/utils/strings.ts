@@ -6,9 +6,26 @@ export const strings = {
     settings: 'Settings',
     addAccessibility: 'Add',
   },
+  settings: {
+    title: 'Settings',
+    subtitle: 'Manage your preferences here.',
+    devToolsTitle: 'Developer Tools',
+    devToolsDescription:
+      'Clear local data to reset the database during development.',
+    clearDatabaseButton: 'Clear Local Database',
+  },
   transactionsScreen: {
     title: 'Transactions',
     subtitle: 'All expenses and income in one place.',
+  },
+  popup: {
+    transactionAddedTitle: 'Transaction Added',
+    transactionAddedMessage: 'Your transaction has been saved locally.',
+    okButton: 'OK',
+    databaseClearedTitle: 'Local Data Cleared',
+    databaseClearedMessage: 'The local database has been reset.',
+    transactionFailedTitle: 'Save Failed',
+    transactionFailedMessage: 'Something went wrong while saving.',
   },
   transactions: {
     title: 'Add Transaction',
@@ -19,6 +36,9 @@ export const strings = {
     descriptionLabel: 'Description',
     expensePlaceholder: 'What did you buy?',
     incomePlaceholder: 'Source of income',
+    amountError: 'Enter a valid amount.',
+    descriptionError: 'Description is required.',
+    categoryError: 'Please select a category.',
     dateLabel: 'Date',
     categoryLabel: 'Category',
     addExpense: 'Add Expense',

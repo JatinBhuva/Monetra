@@ -9,6 +9,11 @@ export const styles = StyleSheet.create({
     paddingVertical: spacing.s16,
     alignItems: 'center',
   },
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s8,
+  },
   buttonPressed: {
     opacity: 0.9,
   },

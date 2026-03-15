@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  StyleProp,
   Text,
   TextInput,
   TextInputProps,
@@ -16,10 +17,10 @@ type CustomInputProps = Omit<TextInputProps, 'style'> & {
   isFocused?: boolean;
   leadingText?: string;
   trailingElement?: React.ReactNode;
-  containerStyle?: ViewStyle;
-  inputStyle?: TextStyle;
-  labelStyle?: TextStyle;
-  leadingTextStyle?: TextStyle;
+  containerStyle?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+  leadingTextStyle?: StyleProp<TextStyle>;
 };
 
 export const CustomInput = ({

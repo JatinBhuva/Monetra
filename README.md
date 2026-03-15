@@ -95,3 +95,35 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+# Local Database Migrations
+
+Monetra stores transactions locally in SQLite. To safely upgrade the app without losing user data, we version the database schema and run migrations at startup.
+
+## How It Works
+
+We use SQLite’s `PRAGMA user_version` to track schema versions in `src/data/db/sqlite.ts`. On startup:
+
+1. Read the current `user_version`.
+2. Run any migration steps needed to move forward.
+3. Update `user_version` to the latest schema version.
+
+## Adding a New Migration
+
+When you change the schema:
+
+1. Increment `SCHEMA_VERSION` in `src/data/db/sqlite.ts`.
+2. Add a new `if (currentVersion < X)` block inside `migrate()` with the SQL changes.
+3. Do not remove old migration steps — they are needed for users upgrading from older app versions.
+
+### Example
+
+```sql
+ALTER TABLE transactions ADD COLUMN note TEXT;
+```
+
+## Upgrade Checklist (APK / App Store)
+
+- Keep the same applicationId / bundle ID.
+- Do not uninstall the app on the device.
+- Ship the new APK/IPA — the app will upgrade in place and run migrations on first launch.

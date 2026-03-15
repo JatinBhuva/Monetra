@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { CustomInput, DateInput, PrimaryActionButton } from '../../components';
 import { colors } from '../../theme';
-import { transactionCategories } from '../../utils/categories';
+import { resolveCategoryLabel } from '../../utils/categoryLabel';
 import { strings } from '../../utils/strings';
 import { useAddTransaction } from './AddTransaction.hook';
 import { styles } from './styles';
@@ -35,15 +35,24 @@ const AddTransactionScreen = ({
     setShowDatePicker,
     formattedDate,
     isSubmitDisabled,
+    isSaving,
+    showAmountError,
+    showDescriptionError,
+    showCategoryError,
+    handleCategorySelect,
+    handleAmountBlur,
+    handleDescriptionBlur,
+    categories: storedCategories,
+    handleSubmit,
     handleDateChange,
-  } = useAddTransaction({ dateLocale: strings.transactions.dateLocale });
+  } = useAddTransaction({
+    dateLocale: strings.transactions.dateLocale,
+    onClose,
+  });
 
   const categories = useMemo(
-    () =>
-      activeType === 'expense'
-        ? transactionCategories.expense
-        : transactionCategories.income,
-    [activeType],
+    () => storedCategories.filter(category => category.type === activeType),
+    [activeType, storedCategories],
   );
 
   return (
@@ -105,11 +114,19 @@ const AddTransactionScreen = ({
             leadingText={strings.transactions.currencySymbol}
             isFocused={focusedField === 'amount'}
             onFocus={() => setFocusedField('amount')}
-            onBlur={() => setFocusedField(null)}
+            onBlur={() => {
+              setFocusedField(null);
+              handleAmountBlur();
+            }}
             containerStyle={
               focusedField === 'amount' ? { borderColor: accent } : null
             }
           />
+          {showAmountError ? (
+            <Text style={styles.errorText}>
+              {strings.transactions.amountError}
+            </Text>
+          ) : null}
 
           <CustomInput
             label={strings.transactions.descriptionLabel}
@@ -122,11 +139,19 @@ const AddTransactionScreen = ({
             }
             isFocused={focusedField === 'description'}
             onFocus={() => setFocusedField('description')}
-            onBlur={() => setFocusedField(null)}
+            onBlur={() => {
+              setFocusedField(null);
+              handleDescriptionBlur();
+            }}
             containerStyle={
               focusedField === 'description' ? { borderColor: accent } : null
             }
           />
+          {showDescriptionError ? (
+            <Text style={styles.errorText}>
+              {strings.transactions.descriptionError}
+            </Text>
+          ) : null}
 
           <DateInput
             label={strings.transactions.dateLabel}
@@ -157,7 +182,7 @@ const AddTransactionScreen = ({
                 return (
                   <Pressable
                     key={category.id}
-                    onPress={() => setSelectedCategory(category.id)}
+                    onPress={() => handleCategorySelect(category.id)}
                     style={[
                       styles.categoryCard,
                       isSelected && styles.categoryCardActive,
@@ -172,12 +197,17 @@ const AddTransactionScreen = ({
                         isSelected ? { color: accent } : null,
                       ]}
                     >
-                      {category.label}
+                      {resolveCategoryLabel(category)}
                     </Text>
                   </Pressable>
                 );
               })}
             </View>
+            {showCategoryError ? (
+              <Text style={styles.errorText}>
+                {strings.transactions.categoryError}
+              </Text>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -190,6 +220,8 @@ const AddTransactionScreen = ({
           }
           backgroundColor={accent}
           disabled={isSubmitDisabled}
+          isLoading={isSaving}
+          onPress={handleSubmit}
         />
       </View>
     </View>

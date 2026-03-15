@@ -7,4 +7,6 @@ export const colors = {
   border: '#E4E6EB',
   inputFocusBackground: '#EDF0FF',
   categoryActiveBackground: '#EEF1FF',
+  overlay: 'rgba(0,0,0,0.4)',
+  error: '#D33A2C',
 };

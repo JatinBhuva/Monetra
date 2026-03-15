@@ -115,6 +115,11 @@ export const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: typography.weight.semiBold,
   },
+  errorText: {
+    marginTop: spacing.s6,
+    fontSize: typography.size.sm,
+    color: colors.error,
+  },
   footer: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,

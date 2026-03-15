@@ -70,18 +70,21 @@ export const RootTabNavigator = () => {
           title: '',
           tabBarLabel: () => null,
           tabBarIcon: ({ color }) => <AddIcon width={24} height={24} fill={color} />,
-          tabBarButton: props => (
-            <Pressable
-              {...props}
-              onPress={() => setIsAddOpen(true)}
-              style={[styles.addButtonWrapper, props.style]}
-              accessibilityLabel={strings.navigation.addAccessibility}
-            >
-              <View style={styles.addButton}>
-                <AddIcon width={24} height={24} fill="#FFFFFF" />
-              </View>
-            </Pressable>
-          ),
+          tabBarButton: props => {
+            const { ref, ...rest } = props as typeof props & { ref?: unknown };
+            return (
+              <Pressable
+                {...rest}
+                onPress={() => setIsAddOpen(true)}
+                style={[styles.addButtonWrapper, rest.style]}
+                accessibilityLabel={strings.navigation.addAccessibility}
+              >
+                <View style={styles.addButton}>
+                  <AddIcon width={24} height={24} fill="#FFFFFF" />
+                </View>
+              </Pressable>
+            );
+          },
         }}
         listeners={{
           tabPress: e => {
