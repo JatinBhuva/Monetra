@@ -1,5 +1,5 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useMemo, useState } from 'react';
+import { createBottomTabNavigator, type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import React, { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import DashboardScreen from '../screens/Dashboard';
@@ -16,33 +16,73 @@ import { assets } from '../assets';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
+const ACTIVE_COLOR = '#0B142A';
+const INACTIVE_COLOR = '#9AA3B2';
+
+const DashboardIcon = assets.icons.dashboard;
+const AddIcon = assets.icons.add;
+const TransactionsIcon = assets.icons.transactions;
+const AnalysisIcon = assets.icons.analysis;
+const SettingsIcon = assets.icons.settings;
+
+type TabIconProps = {
+  color: string;
+};
+
+const DashboardTabIcon = ({ color }: TabIconProps) => (
+  <DashboardIcon width={24} height={24} fill={color} />
+);
+
+const TransactionsTabIcon = ({ color }: TabIconProps) => (
+  <TransactionsIcon width={24} height={24} fill={color} />
+);
+
+const AddTabIcon = ({ color }: TabIconProps) => (
+  <AddIcon width={24} height={24} fill={color} />
+);
+
+const AnalysisTabIcon = ({ color }: TabIconProps) => (
+  <AnalysisIcon width={24} height={24} fill={color} />
+);
+
+const SettingsTabIcon = ({ color }: TabIconProps) => (
+  <SettingsIcon width={24} height={24} fill={color} />
+);
+
+const TabBarBackground = () => (
+  <View style={styles.tabBarBackground}>
+    <View style={styles.tabBarNotch} />
+  </View>
+);
+
+const AddTabButton = ({
+  onPress,
+  accessibilityLabel,
+  style,
+}: BottomTabBarButtonProps) => (
+  <Pressable
+    onPress={onPress}
+    style={[styles.addButtonWrapper, style]}
+    accessibilityLabel={accessibilityLabel}
+  >
+    <View style={styles.addButton}>
+      <AddIcon width={24} height={24} fill="#FFFFFF" />
+    </View>
+  </Pressable>
+);
+
+const EmptyTabBarLabel = () => null;
+
 export const RootTabNavigator = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
-
-  const activeColor = '#0B142A';
-  const inactiveColor = '#9AA3B2';
-
-  const DashboardIcon = assets.icons.dashboard;
-  const AddIcon = assets.icons.add;
-  const TransactionsIcon = assets.icons.transactions;
-  const AnalysisIcon = assets.icons.analysis;
-  const SettingsIcon = assets.icons.settings;
-
-  const screenOptions = useMemo(
-    () => ({
-      headerShown: false,
-      tabBarShowLabel: false,
-      tabBarActiveTintColor: activeColor,
-      tabBarInactiveTintColor: inactiveColor,
-      tabBarStyle: styles.tabBar,
-      tabBarBackground: () => (
-        <View style={styles.tabBarBackground}>
-          <View style={styles.tabBarNotch} />
-        </View>
-      ),
-    }),
-    []
-  );
+  const screenOptions = {
+    headerShown: false,
+    tabBarShowLabel: false,
+    tabBarActiveTintColor: ACTIVE_COLOR,
+    tabBarInactiveTintColor: INACTIVE_COLOR,
+    tabBarStyle: styles.tabBar,
+    tabBarBackground: TabBarBackground,
+  };
 
   return (
     <>
@@ -52,7 +92,7 @@ export const RootTabNavigator = () => {
         component={DashboardScreen}
         options={{
           title: strings.navigation.dashboard,
-          tabBarIcon: ({ color }) => <DashboardIcon width={24} height={24} fill={color} />,
+          tabBarIcon: DashboardTabIcon,
         }}
       />
       <Tab.Screen
@@ -60,7 +100,7 @@ export const RootTabNavigator = () => {
         component={TransactionsScreen}
         options={{
           title: strings.navigation.transactions,
-          tabBarIcon: ({ color }) => <TransactionsIcon width={24} height={24} fill={color} />,
+          tabBarIcon: TransactionsTabIcon,
         }}
       />
       <Tab.Screen
@@ -68,23 +108,9 @@ export const RootTabNavigator = () => {
         component={DashboardScreen}
         options={{
           title: '',
-          tabBarLabel: () => null,
-          tabBarIcon: ({ color }) => <AddIcon width={24} height={24} fill={color} />,
-          tabBarButton: props => {
-            const { ref, ...rest } = props as typeof props & { ref?: unknown };
-            return (
-              <Pressable
-                {...rest}
-                onPress={() => setIsAddOpen(true)}
-                style={[styles.addButtonWrapper, rest.style]}
-                accessibilityLabel={strings.navigation.addAccessibility}
-              >
-                <View style={styles.addButton}>
-                  <AddIcon width={24} height={24} fill="#FFFFFF" />
-                </View>
-              </Pressable>
-            );
-          },
+          tabBarLabel: EmptyTabBarLabel,
+          tabBarIcon: AddTabIcon,
+          tabBarButton: AddTabButton,
         }}
         listeners={{
           tabPress: e => {
@@ -98,7 +124,7 @@ export const RootTabNavigator = () => {
         component={AnalysisScreen}
         options={{
           title: strings.navigation.analysis,
-          tabBarIcon: ({ color }) => <AnalysisIcon width={24} height={24} fill={color} />,
+          tabBarIcon: AnalysisTabIcon,
         }}
       />
       <Tab.Screen
@@ -106,7 +132,7 @@ export const RootTabNavigator = () => {
         component={SettingsScreen}
         options={{
           title: strings.navigation.settings,
-          tabBarIcon: ({ color }) => <SettingsIcon width={24} height={24} fill={color} />,
+          tabBarIcon: SettingsTabIcon,
         }}
       />
     </Tab.Navigator>
@@ -120,7 +146,7 @@ export const RootTabNavigator = () => {
           <Pressable style={styles.modalCard} onPress={() => {}}>
             <AddTransactionScreen
               onClose={() => setIsAddOpen(false)}
-              accentColor={activeColor}
+              accentColor={ACTIVE_COLOR}
             />
           </Pressable>
         </Pressable>

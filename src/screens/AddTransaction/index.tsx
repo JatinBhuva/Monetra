@@ -8,7 +8,7 @@ import { colors, spacing } from '../../theme';
 import { resolveCategoryLabel } from '../../utils/categoryLabel';
 import { strings } from '../../utils/strings';
 import { useAddTransaction } from './AddTransaction.hook';
-import { styles } from './styles';
+import { createAccentStyles, styles } from './styles';
 
 type AddTransactionProps = {
   onClose?: () => void;
@@ -21,6 +21,7 @@ const AddTransactionScreen = ({
 }: AddTransactionProps) => {
   const insets = useSafeAreaInsets();
   const accent = accentColor ?? colors.primary;
+  const accentStyles = useMemo(() => createAccentStyles(accent), [accent]);
   const {
     activeType,
     setActiveType,
@@ -31,7 +32,6 @@ const AddTransactionScreen = ({
     description,
     setDescription,
     selectedCategory,
-    setSelectedCategory,
     selectedDate,
     showDatePicker,
     setShowDatePicker,
@@ -82,7 +82,7 @@ const AddTransactionScreen = ({
                 style={[
                   styles.segmentText,
                   activeType === 'expense' && styles.segmentTextActive,
-                  activeType === 'expense' ? { color: accent } : null,
+                  activeType === 'expense' ? accentStyles.segmentTextAccent : null,
                 ]}
               >
                 {strings.transactions.expense}
@@ -99,7 +99,7 @@ const AddTransactionScreen = ({
                 style={[
                   styles.segmentText,
                   activeType === 'income' && styles.segmentTextActive,
-                  activeType === 'income' ? { color: accent } : null,
+                  activeType === 'income' ? accentStyles.segmentTextAccent : null,
                 ]}
               >
                 {strings.transactions.income}
@@ -121,7 +121,7 @@ const AddTransactionScreen = ({
               handleAmountBlur();
             }}
             containerStyle={
-              focusedField === 'amount' ? { borderColor: accent } : null
+              focusedField === 'amount' ? accentStyles.inputFocusBorder : null
             }
           />
           {showAmountError ? (
@@ -146,7 +146,7 @@ const AddTransactionScreen = ({
               handleDescriptionBlur();
             }}
             containerStyle={
-              focusedField === 'description' ? { borderColor: accent } : null
+              focusedField === 'description' ? accentStyles.inputFocusBorder : null
             }
           />
           {showDescriptionError ? (
@@ -188,7 +188,7 @@ const AddTransactionScreen = ({
                     style={[
                       styles.categoryCard,
                       isSelected && styles.categoryCardActive,
-                      isSelected ? { borderColor: accent } : null,
+                      isSelected ? accentStyles.categoryCardAccent : null,
                     ]}
                   >
                     <Text style={styles.categoryEmoji}>{category.emoji}</Text>
@@ -196,7 +196,7 @@ const AddTransactionScreen = ({
                       style={[
                         styles.categoryLabel,
                         isSelected && styles.categoryLabelActive,
-                        isSelected ? { color: accent } : null,
+                        isSelected ? accentStyles.categoryLabelAccent : null,
                       ]}
                     >
                       {resolveCategoryLabel(category)}

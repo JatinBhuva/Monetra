@@ -128,3 +128,19 @@ export const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
 });
+
+export const createAccentStyles = (accentColor: string) =>
+  StyleSheet.create({
+    segmentTextAccent: {
+      color: accentColor,
+    },
+    inputFocusBorder: {
+      borderColor: accentColor,
+    },
+    categoryCardAccent: {
+      borderColor: accentColor,
+    },
+    categoryLabelAccent: {
+      color: accentColor,
+    },
+  });

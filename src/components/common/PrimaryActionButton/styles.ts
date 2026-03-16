@@ -27,3 +27,13 @@ export const styles = StyleSheet.create({
     color: colors.surface,
   },
 });
+
+export const getButtonOverrides = (
+  backgroundColor?: string,
+  textColor?: string,
+) => {
+  return StyleSheet.create({
+    button: backgroundColor ? { backgroundColor } : {},
+    label: textColor ? { color: textColor } : {},
+  });
+};

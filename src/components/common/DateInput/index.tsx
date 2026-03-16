@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 import { CustomInput } from '../CustomInput';
-import { styles } from './styles';
+import { getAccentBorderStyle, styles } from './styles';
 
 type DateInputProps = {
   label: string;
@@ -39,6 +39,8 @@ export const DateInput = ({
   inputStyle,
   iconStyle,
 }: DateInputProps) => {
+  const accentBorderStyle = getAccentBorderStyle(accentColor, isFocused);
+
   return (
     <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
       <CustomInput
@@ -48,7 +50,7 @@ export const DateInput = ({
         placeholder={placeholder}
         isFocused={isFocused}
         containerStyle={[
-          isFocused && accentColor ? { borderColor: accentColor } : null,
+          accentBorderStyle,
           containerStyle,
         ]}
         inputStyle={[styles.input, inputStyle]}

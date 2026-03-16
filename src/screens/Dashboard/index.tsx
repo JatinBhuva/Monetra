@@ -5,7 +5,7 @@ import { FlashList } from '@shopify/flash-list';
 
 import { TabHeader, TransactionRow } from '../../components';
 import { useDashboard } from './Dashboard.hook';
-import { styles } from './styles';
+import { getContentStyle, styles } from './styles';
 import { strings } from '../../utils/strings';
 import type { Transaction } from '../../types/transactions';
 import { spacing } from '../../theme';
@@ -45,6 +45,8 @@ const renderRecentItem = ({ item }: { item: Transaction }) => {
   );
 };
 
+const RecentItemSeparator = () => <View style={styles.recentSeparator} />;
+
 const DashboardScreen = () => {
   const {
     status,
@@ -70,7 +72,7 @@ const DashboardScreen = () => {
         subtitle={strings.dashboardScreen.subtitle}
       />
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: tabBarSpacing }]}
+        contentContainerStyle={getContentStyle(tabBarSpacing)}
       >
 
       <View style={styles.heroCard}>
@@ -112,7 +114,7 @@ const DashboardScreen = () => {
           keyExtractor={item => item.id}
           estimatedItemSize={72}
           scrollEnabled={false}
-          ItemSeparatorComponent={() => <View style={styles.recentSeparator} />}
+          ItemSeparatorComponent={RecentItemSeparator}
         />
       )}
       </ScrollView>

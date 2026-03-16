@@ -368,18 +368,28 @@ export const useAnalysis = (range: AnalysisRange): AnalysisData => {
         : 0;
 
     const rangeDescriptor =
-      range === 'week' ? 'last 7 days' : range === 'year' ? 'last 12 months' : 'last 30 days';
+      range === 'week'
+        ? strings.analysis.rangeDescriptorWeek
+        : range === 'year'
+          ? strings.analysis.rangeDescriptorYear
+          : strings.analysis.rangeDescriptorMonth;
+    const rangeChipLabel =
+      range === 'week'
+        ? strings.analysis.rangeLast7Days
+        : range === 'year'
+          ? strings.analysis.rangeLast12Months
+          : strings.analysis.rangeLast30Days;
     const topCategory = categoryMix[0];
     const insight = topCategory
       ? {
-          title: 'Insight of the month',
+          title: strings.analysis.insightTitle,
           body: `${topCategory.label} leads your spending at ${topCategory.value}% over the ${rangeDescriptor}.`,
-          chips: ['Category leader', rangeDescriptor.replace('last', 'Last')],
+          chips: [strings.analysis.insightChipCategoryLeader, rangeChipLabel],
         }
       : {
-          title: 'Insight of the month',
-          body: 'Add a few transactions to unlock personalized insights.',
-          chips: ['Get started'],
+          title: strings.analysis.insightTitle,
+          body: strings.analysis.insightEmptyBody,
+          chips: [strings.analysis.insightChipGetStarted],
         };
 
     return {
@@ -394,10 +404,10 @@ export const useAnalysis = (range: AnalysisRange): AnalysisData => {
       summary: {
         rangeLabel:
           range === 'week'
-            ? 'This week'
+            ? strings.analysis.rangeThisWeek
             : range === 'year'
-              ? 'Last 12 months'
-              : 'Last 30 days',
+              ? strings.analysis.rangeLast12Months
+              : strings.analysis.rangeLast30Days,
         monthLabel: formatMonthLabel(now),
         monthExpenseTotal: rangeExpenseTotal,
         monthIncomeTotal: rangeIncomeTotal,

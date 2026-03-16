@@ -9,7 +9,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { styles } from './styles';
+import { getButtonOverrides, styles } from './styles';
 
 type PrimaryActionButtonProps = {
   label: string;
@@ -34,6 +34,7 @@ export const PrimaryActionButton = ({
 }: PrimaryActionButtonProps) => {
   const isDisabled = Boolean(disabled || isLoading);
   const spinnerColor = textColor ?? styles.label.color;
+  const overrides = getButtonOverrides(backgroundColor, textColor);
 
   return (
     <Pressable
@@ -41,7 +42,7 @@ export const PrimaryActionButton = ({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.button,
-        backgroundColor ? { backgroundColor } : null,
+        overrides.button,
         pressed && !isDisabled ? styles.buttonPressed : null,
         isDisabled ? styles.buttonDisabled : null,
         style,
@@ -54,7 +55,7 @@ export const PrimaryActionButton = ({
         <Text
           style={[
             styles.label,
-            textColor ? { color: textColor } : null,
+            overrides.label,
             textStyle,
           ]}
         >

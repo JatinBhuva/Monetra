@@ -76,3 +76,8 @@ export const styles = StyleSheet.create({
     color: colors.surface,
   },
 });
+
+export const getContentStyle = (paddingBottom: number) => [
+  styles.content,
+  { paddingBottom },
+];

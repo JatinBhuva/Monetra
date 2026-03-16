@@ -9,3 +9,7 @@ declare module '*.svg' {
 declare module 'redux-saga';
 declare module 'redux-saga/effects';
 declare module 'react-native-sqlite-storage';
+declare module '*.json' {
+  const value: any;
+  export default value;
+}
