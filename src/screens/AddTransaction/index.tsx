@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CustomInput, DateInput, PrimaryActionButton } from '../../components';
-import { colors } from '../../theme';
+import { colors, spacing } from '../../theme';
 import { resolveCategoryLabel } from '../../utils/categoryLabel';
 import { strings } from '../../utils/strings';
 import { useAddTransaction } from './AddTransaction.hook';
@@ -18,6 +19,7 @@ const AddTransactionScreen = ({
   onClose,
   accentColor,
 }: AddTransactionProps) => {
+  const insets = useSafeAreaInsets();
   const accent = accentColor ?? colors.primary;
   const {
     activeType,
@@ -57,7 +59,7 @@ const AddTransactionScreen = ({
 
   return (
     <View style={styles.screen}>
-      <View style={styles.headerRow}>
+      <View style={[styles.headerRow, { paddingTop: spacing.xl + insets.top }]}>
         <Text style={styles.headerTitle}>{strings.transactions.title}</Text>
         <Pressable style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeIcon}>{strings.transactions.closeIcon}</Text>

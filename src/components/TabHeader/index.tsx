@@ -1,7 +1,9 @@
 import React from 'react';
 import { Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { styles } from './styles';
+import { spacing } from '../../theme';
 
 type TabHeaderProps = {
   title: string;
@@ -10,8 +12,10 @@ type TabHeaderProps = {
 };
 
 const TabHeader = ({ title, subtitle, rightAccessory }: TabHeaderProps) => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: spacing.lg + insets.top }]}>
       <View style={styles.textBlock}>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
