@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 
 import { useAnalysis, type AnalysisRange } from './Analysis.hook';
-import { styles } from './styles';
+import { getContentStyle, getLegendDotStyle, styles } from './styles';
 import { colors, spacing } from '../../theme';
 import { TabHeader, LineAreaChart, DonutChart, BarChart } from '../../components';
 import { strings } from '../../utils/strings';
@@ -34,7 +34,7 @@ const AnalysisLoader = () => (
       <View style={[styles.loaderBar, styles.loaderBarMid]} />
       <View style={[styles.loaderBar, styles.loaderBarShort]} />
     </View>
-    <Text style={styles.loaderLabel}>Preparing your insights...</Text>
+    <Text style={styles.loaderLabel}>{strings.analysis.loaderLabel}</Text>
   </View>
 );
 
@@ -55,14 +55,37 @@ const AnalysisScreen = () => {
   const tabBarSpacing = useTabBarSpacing(spacing.lg);
   const savingsStyle =
     summary.savingsRate >= 0 ? styles.summaryDelta : styles.summaryDeltaNegative;
+  const rangeLabels: Record<AnalysisRange, string> = {
+    week: strings.analysis.tabWeek,
+    month: strings.analysis.tabMonth,
+    year: strings.analysis.tabYear,
+  };
+  const rangeLastLabel =
+    range === 'week'
+      ? strings.analysis.rangeLast7Days
+      : range === 'year'
+        ? strings.analysis.rangeLast12Months
+        : strings.analysis.rangeLast30Days;
+  const rangeThisLabel =
+    range === 'week'
+      ? strings.analysis.rangeThisWeek
+      : range === 'year'
+        ? strings.analysis.rangeThisYear
+        : summary.rangeLabel;
+  const cashflowRangeLabel =
+    range === 'week'
+      ? strings.analysis.cashflowRangeWeek
+      : range === 'year'
+        ? strings.analysis.cashflowRangeYear
+        : strings.analysis.cashflowRangeMonth;
 
   return (
     <View style={styles.container}>
-      <TabHeader title="Analytics" subtitle="Your spending rhythm at a glance." />
+      <TabHeader title={strings.analysis.title} subtitle={strings.analysis.subtitle} />
       <View style={styles.segmentedControl}>
         {(['week', 'month', 'year'] as const).map(item => {
           const isActive = range === item;
-          const label = item === 'month' ? 'Month' : item === 'week' ? 'Week' : 'Year';
+          const label = rangeLabels[item];
           return (
             <Pressable
               key={item}
@@ -84,36 +107,38 @@ const AnalysisScreen = () => {
         </View>
       ) : status === 'failed' ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>Unable to load analytics</Text>
-          <Text style={styles.emptyMessage}>Please try again in a moment.</Text>
+          <Text style={styles.emptyTitle}>{strings.analysis.failedTitle}</Text>
+          <Text style={styles.emptyMessage}>{strings.analysis.failedMessage}</Text>
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: tabBarSpacing }]}
+          contentContainerStyle={getContentStyle(tabBarSpacing)}
         >
 
           {status === 'empty' ? (
             <View style={styles.emptyInline}>
-              <Text style={styles.emptyTitle}>No analytics yet</Text>
-              <Text style={styles.emptyMessage}>
-                Add transactions to unlock charts and insights.
-              </Text>
+              <Text style={styles.emptyTitle}>{strings.analysis.emptyTitle}</Text>
+              <Text style={styles.emptyMessage}>{strings.analysis.emptyMessage}</Text>
             </View>
           ) : null}
 
           <View style={styles.summaryRow}>
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>Total spend ({summary.rangeLabel})</Text>
+              <Text style={styles.summaryLabel}>
+                {strings.analysis.summaryTotalSpendLabel} ({summary.rangeLabel})
+              </Text>
               <Text style={styles.summaryValue}>
                 {formatCurrency(summary.monthExpenseTotal)}
               </Text>
               <Text style={savingsStyle}>
-                {formatPercent(summary.savingsRate)} savings rate
+                {formatPercent(summary.savingsRate)} {strings.analysis.summarySavingsRateSuffix}
               </Text>
             </View>
             <View style={[styles.summaryCard, styles.summaryCardLast]}>
-              <Text style={styles.summaryLabel}>Total income</Text>
-              <Text style={styles.summaryValue}>****</Text>
+              <Text style={styles.summaryLabel}>
+                {strings.analysis.summaryTotalIncomeLabel}
+              </Text>
+              <Text style={styles.summaryValue}>{strings.analysis.incomeMaskedValue}</Text>
               <Text style={styles.summaryMeta}>{' '}</Text>
             </View>
           </View>
@@ -121,35 +146,23 @@ const AnalysisScreen = () => {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <View>
-                <Text style={styles.cardTitle}>Spending Pulse</Text>
-                <Text style={styles.cardSubtitle}>
-                  {range === 'week'
-                    ? 'Last 7 days'
-                    : range === 'year'
-                      ? 'Last 12 months'
-                      : 'Last 30 days'}
-                </Text>
+                <Text style={styles.cardTitle}>{strings.analysis.spendingPulseTitle}</Text>
+                <Text style={styles.cardSubtitle}>{rangeLastLabel}</Text>
               </View>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>
-                  {range === 'week'
-                    ? 'This week'
-                    : range === 'year'
-                      ? 'This year'
-                      : summary.rangeLabel}
-                </Text>
+                <Text style={styles.pillText}>{rangeThisLabel}</Text>
               </View>
             </View>
             <LineAreaChart values={lineSeries.values} width={chartWidth} height={120} />
             <View style={styles.cardFooter}>
               <View>
-                <Text style={styles.cardFooterLabel}>Avg spend</Text>
+                <Text style={styles.cardFooterLabel}>{strings.analysis.avgSpendLabel}</Text>
                 <Text style={styles.cardFooterValue}>
-                  {formatCurrency(lineSeries.average)} / day
+                  {formatCurrency(lineSeries.average)} {strings.analysis.perDaySuffix}
                 </Text>
               </View>
               <View>
-                <Text style={styles.cardFooterLabel}>Peak day</Text>
+                <Text style={styles.cardFooterLabel}>{strings.analysis.peakDayLabel}</Text>
                 <Text style={styles.cardFooterValue}>{lineSeries.peakLabel}</Text>
               </View>
             </View>
@@ -158,21 +171,15 @@ const AnalysisScreen = () => {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <View>
-                <Text style={styles.cardTitle}>Category Mix</Text>
-                <Text style={styles.cardSubtitle}>Where money flows</Text>
+                <Text style={styles.cardTitle}>{strings.analysis.categoryMixTitle}</Text>
+                <Text style={styles.cardSubtitle}>{strings.analysis.categoryMixSubtitle}</Text>
               </View>
               <View style={[styles.pill, styles.pillAlt]}>
-                <Text style={styles.pillText}>
-                  {range === 'week'
-                    ? 'Last 7 days'
-                    : range === 'year'
-                      ? 'Last 12 months'
-                      : 'Last 30 days'}
-                </Text>
+                <Text style={styles.pillText}>{rangeLastLabel}</Text>
               </View>
             </View>
             {categoryMix.length === 0 ? (
-              <Text style={styles.emptyMessage}>No expense data yet.</Text>
+              <Text style={styles.emptyMessage}>{strings.analysis.noExpenseData}</Text>
             ) : (
               <View style={styles.donutRow}>
                 <View style={styles.donutGraphic}>
@@ -188,7 +195,7 @@ const AnalysisScreen = () => {
                   {categoryMix.map(segment => (
                     <View style={styles.legendRow} key={segment.label}>
                       <View
-                        style={[styles.legendDot, { backgroundColor: segment.color }]}
+                        style={getLegendDotStyle(segment.color)}
                       />
                       <Text style={styles.legendLabel}>{segment.label}</Text>
                       <Text style={styles.legendValue}>{segment.value}%</Text>
@@ -202,29 +209,23 @@ const AnalysisScreen = () => {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <View>
-                <Text style={styles.cardTitle}>Cashflow Trend</Text>
-                <Text style={styles.cardSubtitle}>Income vs expense</Text>
+                <Text style={styles.cardTitle}>{strings.analysis.cashflowTitle}</Text>
+                <Text style={styles.cardSubtitle}>{strings.analysis.cashflowSubtitle}</Text>
               </View>
               <View style={[styles.pill, styles.pillSoft]}>
-                <Text style={styles.pillText}>
-                  {range === 'week'
-                    ? '7 days'
-                    : range === 'year'
-                      ? '12 months'
-                      : '5 weeks'}
-                </Text>
+                <Text style={styles.pillText}>{cashflowRangeLabel}</Text>
               </View>
             </View>
             <BarChart data={weeklyCashflow} width={chartWidth} height={110} />
             <View style={styles.cardFooter}>
               <View>
-                <Text style={styles.cardFooterLabel}>Avg income</Text>
+                <Text style={styles.cardFooterLabel}>{strings.analysis.avgIncomeLabel}</Text>
                 <Text style={styles.cardFooterValue}>
                   {formatCurrency(averages.income)}
                 </Text>
               </View>
               <View>
-                <Text style={styles.cardFooterLabel}>Avg expense</Text>
+                <Text style={styles.cardFooterLabel}>{strings.analysis.avgExpenseLabel}</Text>
                 <Text style={styles.cardFooterValue}>
                   {formatCurrency(averages.expense)}
                 </Text>

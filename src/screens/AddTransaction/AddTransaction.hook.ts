@@ -168,7 +168,7 @@ export const useAddTransaction = ({
       onClose();
     }
     setSubmittedId(null);
-  }, [dispatch, lastCreatedId, onClose, submittedId]);
+  }, [activeType, dispatch, lastCreatedId, onClose, selectedCategory, submittedId]);
 
   useEffect(() => {
     if (saveStatus !== 'failed' || !submittedId) {

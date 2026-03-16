@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 
 import { TabHeader, TransactionRow } from '../../components';
 import { strings } from '../../utils/strings';
 import { useTransactions } from './Transactions.hook';
-import { styles } from './styles';
+import { getListContentStyle, styles } from './styles';
 import type { Transaction } from '../../types/transactions';
 import { spacing } from '../../theme';
 import { useTabBarSpacing } from '../../hooks/useTabBarSpacing';
@@ -192,10 +192,7 @@ const TransactionsScreen = () => {
           renderItem={renderItem}
           keyExtractor={item => item.id}
           estimatedItemSize={72}
-          contentContainerStyle={StyleSheet.flatten([
-            styles.listContent,
-            { paddingBottom: tabBarSpacing },
-          ])}
+          contentContainerStyle={getListContentStyle(tabBarSpacing)}
           onEndReached={loadMore}
           onEndReachedThreshold={0.4}
           onRefresh={refresh}

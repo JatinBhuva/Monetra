@@ -10,3 +10,8 @@ export const styles = StyleSheet.create({
     fontSize: typography.size.lg,
   },
 });
+
+export const getAccentBorderStyle = (
+  accentColor?: string,
+  isFocused?: boolean,
+) => (isFocused && accentColor ? { borderColor: accentColor } : null);

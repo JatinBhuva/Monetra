@@ -293,3 +293,13 @@ export const styles = StyleSheet.create({
     color: colors.muted,
   },
 });
+
+export const getContentStyle = (paddingBottom: number) => [
+  styles.content,
+  { paddingBottom },
+];
+
+export const getLegendDotStyle = (color: string) => [
+  styles.legendDot,
+  { backgroundColor: color },
+];

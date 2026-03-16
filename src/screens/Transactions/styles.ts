@@ -107,3 +107,8 @@ export const styles = StyleSheet.create({
     marginTop: -2,
   },
 });
+
+export const getListContentStyle = (paddingBottom: number) => [
+  styles.listContent,
+  { paddingBottom },
+];

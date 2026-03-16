@@ -81,7 +81,7 @@ const DonutChart = ({
       startAngle = endAngle;
       return item;
     });
-  }, [segments, innerRadius, outerRadius]);
+  }, [center, innerRadius, outerRadius, segments]);
 
   return (
     <Svg width={size} height={size} viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}>
