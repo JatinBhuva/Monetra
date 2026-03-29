@@ -96,6 +96,89 @@ To learn more about React Native, take a look at the following resources:
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
 
+# Supabase Setup
+
+Monetra now includes a shared Supabase client for auth, database, storage, or edge-function calls.
+
+## Environment Variables
+
+Create a `.env` file in the project root with:
+
+```env
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+```
+
+The app reads these values through `react-native-config`, and startup will fail early if either value is missing.
+
+## Client Location
+
+Use the exported singleton from `src/services/supabase.ts`:
+
+```ts
+import { supabase } from './services';
+```
+
+The client is configured for React Native with:
+
+- `AsyncStorage` session persistence
+- token auto-refresh
+- URL session detection disabled
+
+## Native Install Step
+
+After pulling these changes or updating dependencies, run:
+
+```sh
+cd ios
+bundle exec pod install
+cd ..
+```
+
+## Example Query
+
+```ts
+const { data, error } = await supabase.from('transactions').select('*');
+```
+
+## Login Setup
+
+Create a Supabase Auth user in the Authentication dashboard with:
+
+- email: `00000001@monetra.app`
+- password: `1234`
+
+The app still shows only `user id` and `password`, but it now maps the entered user ID to that internal email format and signs in through Supabase Auth.
+
+There is no per-user SQL step anymore. Once the auth user exists, the app handles the rest.
+
+## Per-User Sync Setup
+
+To sync local SQLite data with Supabase for the logged-in user, also run [app_sync_setup.sql](/Users/jatinbhuva/Desktop/Product/Monetra/supabase/app_sync_setup.sql) in the Supabase SQL Editor.
+
+That script creates:
+
+- `public.app_categories`
+- `public.app_transactions`
+- `public.app_preferences`
+
+Current sync behavior:
+
+- login restores the current user's remote snapshot into local SQLite
+- local transaction/category/preference writes are mirrored to Supabase for the active user
+- switching users resets the local SQLite snapshot before pulling the other user's data
+- if the device is offline, failed cloud writes are queued locally and retried automatically when the network returns
+
+The sync tables now use authenticated-only row-level security policies based on `auth.uid()`.
+
+## Cleanup Old Prototype Setup
+
+If you used the earlier prototype auth flow, run [cleanup_old_setup.sql](/Users/jatinbhuva/Desktop/Product/Monetra/supabase/cleanup_old_setup.sql) once to remove obsolete objects:
+
+- `public.users`
+- `public.user_profiles`
+- `public.verify_app_user(text, text)`
+
 # Local Database Migrations
 
 Monetra stores transactions locally in SQLite. To safely upgrade the app without losing user data, we version the database schema and run migrations at startup.

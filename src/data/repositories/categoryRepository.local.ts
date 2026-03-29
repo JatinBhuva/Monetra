@@ -1,6 +1,10 @@
 import type { Category } from '../../types/categories';
 import type { CategoryRepository } from './categoryRepository';
 import { getDb } from '../db/sqlite';
+import {
+  syncCategoryDeleteToRemote,
+  syncCategoryUpsertToRemote,
+} from '../../services/syncService';
 
 export class LocalCategoryRepository implements CategoryRepository {
   async listAll() {
@@ -42,11 +46,13 @@ export class LocalCategoryRepository implements CategoryRepository {
         category.createdAt,
       ],
     );
+    await syncCategoryUpsertToRemote(category);
   }
 
   async remove(id: string) {
     const db = await getDb();
     await db.executeSql('DELETE FROM categories WHERE id = ?;', [id]);
+    await syncCategoryDeleteToRemote(id);
   }
 
   async count() {

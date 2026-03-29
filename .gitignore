@@ -53,6 +53,7 @@ ios/.xcode.env.local
 # Env files
 .env
 .env.*
+!.env.example
 
 # Misc
 *.swp

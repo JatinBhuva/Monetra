@@ -1,6 +1,7 @@
 import type { Transaction } from '../../types/transactions';
 import type { TransactionRepository } from './transactionRepository';
 import { getDb } from '../db/sqlite';
+import { syncTransactionToRemote } from '../../services/syncService';
 
 export class LocalTransactionRepository implements TransactionRepository {
   async create(transaction: Transaction) {
@@ -17,6 +18,7 @@ export class LocalTransactionRepository implements TransactionRepository {
         transaction.category ? JSON.stringify(transaction.category) : null,
       ],
     );
+    await syncTransactionToRemote(transaction);
   }
 
   async list(params: { limit: number; offset: number }) {
