@@ -9,3 +9,16 @@ declare module '*.svg' {
 declare module 'redux-saga';
 declare module 'redux-saga/effects';
 declare module 'react-native-sqlite-storage';
+declare module 'react-native-config' {
+  export interface NativeConfig {
+    SUPABASE_URL?: string;
+    SUPABASE_ANON_KEY?: string;
+  }
+
+  const Config: NativeConfig;
+  export default Config;
+}
+declare module '*.json' {
+  const value: any;
+  export default value;
+}

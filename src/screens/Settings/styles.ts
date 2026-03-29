@@ -20,6 +20,7 @@ export const styles = StyleSheet.create({
     padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: typography.size.md,
@@ -31,5 +32,48 @@ export const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: colors.muted,
     marginBottom: spacing.lg,
+  },
+  row: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingVertical: spacing.s8,
+  },
+  rowFirst: {
+    borderTopWidth: 0,
+    paddingTop: 0,
+  },
+  rowPressed: {
+    opacity: 0.7,
+  },
+  rowDisabled: {
+    opacity: 0.5,
+  },
+  rowContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  rowIcon: {
+    fontSize: typography.size.base,
+    marginRight: spacing.sm,
+  },
+  rowText: {
+    flex: 1,
+  },
+  rowLabel: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textPrimary,
+  },
+  rowDescription: {
+    marginTop: spacing.s4,
+    fontSize: typography.size.xs,
+    color: colors.muted,
+  },
+  rowValue: {
+    fontSize: typography.size.sm,
+    color: colors.muted,
+    textAlign: 'right',
+    marginLeft: spacing.md,
   },
 });

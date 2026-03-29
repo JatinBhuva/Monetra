@@ -1,5 +1,6 @@
 import { getDb } from '../db/sqlite';
 import type { PreferencesRepository } from './preferencesRepository';
+import { syncPreferenceToRemote } from '../../services/syncService';
 
 export class LocalPreferencesRepository implements PreferencesRepository {
   async get(key: string) {
@@ -22,5 +23,6 @@ export class LocalPreferencesRepository implements PreferencesRepository {
       'INSERT OR REPLACE INTO preferences (key, value) VALUES (?, ?);',
       [key, value],
     );
+    await syncPreferenceToRemote(key, value);
   }
 }

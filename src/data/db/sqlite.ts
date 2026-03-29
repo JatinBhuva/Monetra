@@ -4,7 +4,7 @@ SQLite.enablePromise(true);
 
 const DB_NAME = 'monetra.db';
 const DB_LOCATION = 'default';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 let dbPromise: Promise<any> | null = null;
 
@@ -111,6 +111,22 @@ const migrate = async (db: any) => {
     }
   }
 
+  if (currentVersion < 4) {
+    await db.executeSql(
+      `CREATE TABLE IF NOT EXISTS sync_queue (
+        queueKey TEXT PRIMARY KEY NOT NULL,
+        entityType TEXT NOT NULL,
+        entityId TEXT NOT NULL,
+        operation TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        createdAt TEXT NOT NULL
+      );`,
+    );
+    await db.executeSql(
+      'CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(createdAt);',
+    );
+  }
+
   if (currentVersion < SCHEMA_VERSION) {
     await setUserVersion(db, SCHEMA_VERSION);
   }
@@ -131,6 +147,7 @@ export const resetDatabase = async () => {
   await db.executeSql('DROP TABLE IF EXISTS transactions;');
   await db.executeSql('DROP TABLE IF EXISTS categories;');
   await db.executeSql('DROP TABLE IF EXISTS preferences;');
+  await db.executeSql('DROP TABLE IF EXISTS sync_queue;');
   await setUserVersion(db, 0);
   await migrate(db);
 };
