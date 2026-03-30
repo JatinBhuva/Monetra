@@ -1,21 +1,19 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography, type ThemeColors } from '../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 0,
     paddingBottom: spacing.xl,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 0,
+    backgroundColor: colors.background,
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.s20,
     paddingBottom: spacing.xl,
   },
   headerRow: {
@@ -24,96 +22,176 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.md,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingBottom: spacing.s18,
+    backgroundColor: colors.background,
   },
   headerTitle: {
-    fontSize: typography.size.lg,
+    fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     color: colors.textPrimary,
+    letterSpacing: 0.2,
   },
   closeButton: {
-    width: 32,
-    height: 32,
+    width: 42,
+    height: 42,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
-    backgroundColor: colors.background,
+    borderRadius: 21,
+    backgroundColor: colors.surface,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 2,
   },
   closeIcon: {
-    fontSize: 20,
-    color: colors.muted,
+    fontSize: 22,
+    color: colors.textSecondary,
   },
-  segmentedControl: {
-    flexDirection: 'row',
-    backgroundColor: colors.border,
-    borderRadius: 24,
-    padding: 4,
-    marginBottom: spacing.lg,
+  contextHeader: {
+    marginBottom: spacing.xl,
+    gap: spacing.s8,
   },
-  segment: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
+  contextBadge: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    paddingHorizontal: spacing.s14,
+    paddingVertical: spacing.s8,
   },
-  segmentActive: {
-    backgroundColor: colors.surface,
-    borderColor: colors.primary,
+  contextBadgeExpense: {
+    backgroundColor: colors.successSoft,
   },
-  segmentText: {
-    fontSize: typography.size.md,
-    color: colors.muted,
+  contextBadgeIncome: {
+    backgroundColor: colors.accentBlueSoft,
+  },
+  contextBadgeText: {
+    fontSize: typography.size.xs,
     fontWeight: typography.weight.semiBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  segmentTextActive: {
-    color: colors.primary,
-  },
-  fieldBlock: {
-    marginBottom: spacing.lg,
-  },
-  label: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  categoryCard: {
-    width: '30%',
-    minWidth: 92,
-    backgroundColor: colors.background,
-    borderRadius: 20,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  categoryCardActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.categoryActiveBackground,
-  },
-  categoryEmoji: {
-    fontSize: 26,
-    marginBottom: spacing.xs,
-  },
-  categoryLabel: {
+  contextHint: {
     fontSize: typography.size.sm,
     color: colors.muted,
+    lineHeight: 20,
+  },
+  fieldBlock: {
+    marginBottom: spacing.xl,
+  },
+  categoryHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.s12,
+  },
+  label: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
+    color: colors.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+  },
+  moreLink: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
+  },
+  formSectionLabel: {
+    color: colors.muted,
+    fontSize: typography.size.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+    marginBottom: spacing.s12,
+  },
+  formInput: {
+    minHeight: 64,
+    borderWidth: 0,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.s16,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 1,
+  },
+  notesInput: {
+    minHeight: 118,
+    alignItems: 'flex-start',
+    paddingTop: spacing.s16,
+  },
+  amountInput: {
+    fontSize: 22,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textPrimary,
     textAlign: 'center',
   },
-  categoryLabelActive: {
-    color: colors.primary,
+  currencySymbol: {
+    fontSize: 34,
     fontWeight: typography.weight.semiBold,
+    color: colors.success,
+    marginRight: spacing.s12,
+  },
+  formInputText: {
+    fontSize: typography.size.base,
+    color: colors.textPrimary,
+  },
+  dateIcon: {
+    fontSize: 20,
+    color: colors.textPrimary,
+  },
+  categoryRail: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.s10,
+  },
+  categoryChip: {
+    width: '31%',
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.s12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s8,
+    borderWidth: 1.5,
+    borderColor: colors.borderStrong,
+  },
+  categoryChipActive: {
+    backgroundColor: colors.successMuted,
+  },
+  categoryChipEmoji: {
+    fontSize: 18,
+  },
+  categoryChipLabel: {
+    flex: 1,
+    fontSize: typography.size.sm,
+    color: colors.textSecondary,
+    fontWeight: typography.weight.medium,
+  },
+  categoryChipLabelActive: {
+    fontWeight: typography.weight.semiBold,
+  },
+  moreChip: {
+    width: '31%',
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.s4,
+    borderWidth: 1,
+    borderColor: colors.successSoft,
+    borderStyle: 'dashed',
+  },
+  moreChipPlus: {
+    fontSize: 18,
+    color: colors.success,
+    fontWeight: typography.weight.semiBold,
+  },
+  moreChipLabel: {
+    fontSize: typography.size.xs,
+    color: colors.textSecondary,
+    fontWeight: typography.weight.medium,
   },
   errorText: {
     marginTop: spacing.s6,
@@ -123,8 +201,103 @@ export const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
+    backgroundColor: colors.background,
+  },
+  submitButton: {
+    minHeight: 58,
+    borderRadius: 24,
+    shadowColor: colors.success,
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
+  sheetBackdrop: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  sheetCard: {
+    maxHeight: '82%',
     backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderRadius: 28,
+    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
+  },
+  sheetTitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+  },
+  sheetList: {
+    paddingBottom: spacing.md,
+  },
+  sheetCategoryRow: {
+    minHeight: 56,
+    borderRadius: 20,
+    backgroundColor: colors.surfaceSecondary,
+    paddingHorizontal: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.s10,
+  },
+  sheetCategoryRowActive: {
+    backgroundColor: colors.successMuted,
+  },
+  sheetCategoryEmoji: {
+    fontSize: 20,
+    marginRight: spacing.s12,
+  },
+  sheetCategoryLabel: {
+    flex: 1,
+    fontSize: typography.size.md,
+    color: colors.textSecondary,
+    fontWeight: typography.weight.medium,
+  },
+  sheetSelected: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
+  },
+  addCategoryCard: {
+    marginTop: spacing.md,
+    padding: spacing.lg,
+    borderRadius: 22,
+    backgroundColor: colors.successSoft,
+  },
+  addCategoryTitle: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+  },
+  sheetInputLabel: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
+    color: colors.muted,
+    marginBottom: spacing.s8,
+  },
+  sheetInput: {
+    minHeight: 48,
+    borderRadius: 16,
+    backgroundColor: colors.inputBackground,
+    paddingHorizontal: spacing.md,
+    fontSize: typography.size.md,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+  },
+  addCategoryButton: {
+    minHeight: 48,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addCategoryButtonText: {
+    color: colors.primaryContrast,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semiBold,
   },
 });

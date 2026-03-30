@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-import { styles } from './styles';
+import { useThemedStyles } from '../../theme';
+import { createStyles } from './styles';
 import { strings } from '../../utils/strings';
 import type { Transaction } from '../../types/transactions';
 
@@ -20,7 +21,10 @@ const TransactionRow = ({
   topRightLabel,
   variant = 'default',
 }: TransactionRowProps) => {
+  const styles = useThemedStyles(createStyles);
   const isCompact = variant === 'compact';
+  const description = transaction.description.trim();
+  const hasDescription = description.length > 0;
   const categoryName =
     transaction.category?.name ?? strings.transactionsScreen.uncategorized;
   const categoryEmoji = transaction.category?.emoji ?? '•';
@@ -39,19 +43,39 @@ const TransactionRow = ({
           {categoryEmoji}
         </Text>
       </View>
-      <View style={styles.rowContent}>
-        <Text
-          style={[styles.title, isCompact && styles.titleCompact]}
-          numberOfLines={1}
-        >
-          {transaction.description}
-        </Text>
-        <Text
-          style={[styles.subtitle, isCompact && styles.subtitleCompact]}
-          numberOfLines={1}
-        >
-          {categoryName}
-        </Text>
+      <View
+        style={[
+          styles.rowContent,
+          !hasDescription && styles.rowContentCentered,
+        ]}
+      >
+        {hasDescription ? (
+          <>
+            <Text
+              style={[styles.title, isCompact && styles.titleCompact]}
+              numberOfLines={1}
+            >
+              {description}
+            </Text>
+            <Text
+              style={[styles.subtitle, isCompact && styles.subtitleCompact]}
+              numberOfLines={1}
+            >
+              {categoryName}
+            </Text>
+          </>
+        ) : (
+          <Text
+            style={[
+              styles.subtitle,
+              styles.subtitleStandalone,
+              isCompact && styles.subtitleCompact,
+            ]}
+            numberOfLines={1}
+          >
+            {categoryName}
+          </Text>
+        )}
       </View>
       {(topRightLabel || amountLabel) && (
         <View style={styles.meta}>

@@ -1,8 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing, typography } from '../../../theme';
+import { spacing, typography, type ThemeColors } from '../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   backdrop: {
     flex: 1,
     backgroundColor: colors.overlay,
@@ -34,7 +37,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: colors.surface,
+    color: colors.primaryContrast,
     fontSize: typography.size.md,
     fontWeight: typography.weight.semiBold,
   },

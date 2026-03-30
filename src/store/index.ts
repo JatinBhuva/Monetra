@@ -6,7 +6,10 @@ export {
   loadTransactionsRequested,
   loadMonthlyStatsRequested,
 } from './transactionsSlice';
-export { showPopup, hidePopup } from './uiSlice';
+export {
+  showPopup,
+  hidePopup,
+} from './uiSlice';
 export {
   loadCategoriesRequested,
   addCategoryRequested,

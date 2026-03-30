@@ -5,7 +5,7 @@
         android:height="@dimen/splash_icon_size"
         android:gravity="center">
         <bitmap
-            android:src="@drawable/playstore_icon"
+            android:src="@drawable/bootsplash_brand"
             android:gravity="center" />
     </item>
 </layer-list>

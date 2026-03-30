@@ -3,7 +3,7 @@
     <item android:drawable="@color/splash_background" />
     <item>
         <bitmap
-            android:src="@drawable/playstore_icon"
+            android:src="@drawable/bootsplash_brand"
             android:gravity="center" />
     </item>
 </layer-list>

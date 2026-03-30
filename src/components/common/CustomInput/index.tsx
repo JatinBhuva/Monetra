@@ -9,8 +9,8 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { colors } from '../../../theme';
-import { styles } from './styles';
+import { useAppTheme, useThemedStyles } from '../../../theme';
+import { createStyles } from './styles';
 
 type CustomInputProps = Omit<TextInputProps, 'style'> & {
   label?: string;
@@ -32,9 +32,12 @@ export const CustomInput = ({
   inputStyle,
   labelStyle,
   leadingTextStyle,
-  placeholderTextColor = colors.muted,
+  placeholderTextColor,
   ...textInputProps
 }: CustomInputProps) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.block}>
       {label ? <Text style={[styles.label, labelStyle]}>{label}</Text> : null}
@@ -49,7 +52,7 @@ export const CustomInput = ({
           <Text style={[styles.leadingText, leadingTextStyle]}>{leadingText}</Text>
         ) : null}
         <TextInput
-          placeholderTextColor={placeholderTextColor}
+          placeholderTextColor={placeholderTextColor ?? colors.muted}
           style={[styles.input, inputStyle]}
           {...textInputProps}
         />

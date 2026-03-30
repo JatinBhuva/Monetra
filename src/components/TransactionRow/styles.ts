@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography, type ThemeColors } from '../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -43,6 +43,9 @@ export const styles = StyleSheet.create({
   rowContent: {
     flex: 1,
   },
+  rowContentCentered: {
+    justifyContent: 'center',
+  },
   title: {
     fontSize: typography.size.md,
     fontWeight: typography.weight.semiBold,
@@ -55,6 +58,9 @@ export const styles = StyleSheet.create({
   subtitle: {
     fontSize: typography.size.sm,
     color: colors.muted,
+  },
+  subtitleStandalone: {
+    marginBottom: 0,
   },
   subtitleCompact: {
     fontSize: typography.size.xs,

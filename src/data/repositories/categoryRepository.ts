@@ -6,6 +6,7 @@ export type CategoryRepository = {
   upsert: (category: Category) => Promise<void>;
   remove: (id: string) => Promise<void>;
   count: () => Promise<number>;
+  getUsageCounts: () => Promise<Record<string, number>>;
 };
 
 export const categoryRepository: CategoryRepository =

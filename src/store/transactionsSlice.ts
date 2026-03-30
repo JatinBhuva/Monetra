@@ -34,6 +34,19 @@ const initialState: TransactionsState = {
   monthStatsError: null,
 };
 
+const isInCurrentMonth = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  const now = new Date();
+  return (
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  );
+};
+
 const transactionsSlice = createSlice({
   name: 'transactions',
   initialState,
@@ -45,6 +58,17 @@ const transactionsSlice = createSlice({
     addTransactionSucceeded: (state, action: PayloadAction<Transaction>) => {
       state.status = 'idle';
       state.lastCreatedId = action.payload.id;
+      state.items = [
+        action.payload,
+        ...state.items.filter(item => item.id !== action.payload.id),
+      ].sort((left, right) => right.date.localeCompare(left.date));
+
+      if (isInCurrentMonth(action.payload.date)) {
+        state.monthTransactionCount += 1;
+        if (action.payload.type === 'expense') {
+          state.monthExpenseTotal += Number(action.payload.amount) || 0;
+        }
+      }
     },
     addTransactionFailed: (state, action: PayloadAction<string>) => {
       state.status = 'failed';

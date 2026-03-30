@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography, type ThemeColors } from '../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -23,9 +23,106 @@ export const styles = StyleSheet.create({
     paddingTop: spacing.s6,
     paddingBottom: spacing.xxl,
   },
+  headerWrap: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.s18,
+  },
+  searchWrap: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.s8,
+  },
+  searchInput: {
+    minHeight: 54,
+    borderWidth: 0,
+    borderRadius: 18,
+    backgroundColor: colors.inputBackground,
+    paddingHorizontal: spacing.s16,
+  },
+  searchInputText: {
+    fontSize: typography.size.md,
+    color: colors.textPrimary,
+  },
+  monthDetailContent: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xxl,
+  },
+  monthDetailBack: {
+    fontSize: typography.size.md,
+    color: colors.primary,
+    fontWeight: typography.weight.semiBold,
+    marginBottom: spacing.s16,
+  },
+  monthDetailSectionTitle: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textPrimary,
+    marginBottom: spacing.s12,
+  },
+  monthBreakdownGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: spacing.s8,
+  },
+  monthBreakdownCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    width: '48.2%',
+    minHeight: 168,
+    paddingVertical: spacing.s16,
+    paddingHorizontal: spacing.s14,
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: spacing.s12,
+  },
+  monthBreakdownIconBox: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: colors.backgroundSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.s12,
+  },
+  monthBreakdownEmoji: {
+    fontSize: 22,
+  },
+  monthBreakdownMain: {
+    width: '100%',
+    marginTop: spacing.s12,
+  },
+  monthBreakdownTitle: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textPrimary,
+    marginBottom: spacing.s4,
+  },
+  monthBreakdownMeta: {
+    fontSize: typography.size.sm,
+    color: colors.muted,
+  },
+  monthBreakdownAmount: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textPrimary,
+    marginTop: spacing.md,
+  },
   rowWrapper: {
     marginBottom: spacing.s12,
     marginHorizontal: spacing.lg,
+  },
+  monthDetailRowWrapper: {
+    marginBottom: spacing.s12,
+  },
+  emptyStateCompact: {
+    backgroundColor: colors.surface,
+    borderRadius: spacing.s16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    marginBottom: spacing.lg,
   },
   emptyState: {
     backgroundColor: colors.surface,

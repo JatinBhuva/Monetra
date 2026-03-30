@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing, typography } from '../../../theme';
+import { spacing, typography, type ThemeColors } from '../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   button: {
     backgroundColor: colors.primary,
     borderRadius: typography.size.md,
@@ -24,6 +24,6 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.semiBold,
-    color: colors.surface,
+    color: colors.primaryContrast,
   },
 });

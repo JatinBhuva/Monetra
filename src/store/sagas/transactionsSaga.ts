@@ -4,6 +4,9 @@ import type { Transaction } from '../../types/transactions';
 import { transactionRepository } from '../../data/repositories/transactionRepository';
 import type { RootState } from '../store';
 import {
+  loadAnalyticsRequested,
+} from '../analyticsSlice';
+import {
   addTransactionFailed,
   addTransactionRequested,
   addTransactionSucceeded,
@@ -20,6 +23,8 @@ function* handleAddTransaction(action: { payload: Transaction }) {
     yield call([transactionRepository, transactionRepository.create], action.payload);
     yield put(addTransactionSucceeded(action.payload));
     yield put(loadTransactionsRequested({ refresh: true }));
+    yield put(loadMonthlyStatsRequested());
+    yield put(loadAnalyticsRequested());
   } catch (error) {
     yield put(
       addTransactionFailed(

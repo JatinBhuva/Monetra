@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Platform } from 'react-native';
 
+import type { Category } from '../../types/categories';
 import type { TransactionType } from '../../types/transactions';
 import {
   addTransactionRequested,
+  addCategoryRequested,
   loadCategoriesRequested,
   showPopup,
 } from '../../store';
@@ -13,14 +15,16 @@ import { preferencesRepository } from '../../data/repositories/preferencesReposi
 
 type UseAddTransactionProps = {
   dateLocale: string;
+  initialType: TransactionType;
   onClose?: () => void;
 };
 
 export const useAddTransaction = ({
   dateLocale,
+  initialType,
   onClose,
 }: UseAddTransactionProps) => {
-  const [activeType, setActiveType] = useState<TransactionType>('expense');
+  const [activeType] = useState<TransactionType>(initialType);
   const [focusedField, setFocusedField] = useState<null | string>(null);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -33,10 +37,10 @@ export const useAddTransaction = ({
   const saveError = useAppSelector(state => state.transactions.error);
   const saveStatus = useAppSelector(state => state.transactions.status);
   const categories = useAppSelector(state => state.categories.items);
+  const [localCategories, setLocalCategories] = useState<Category[]>([]);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [touchedAmount, setTouchedAmount] = useState(false);
-  const [touchedDescription, setTouchedDescription] = useState(false);
   const [touchedCategory, setTouchedCategory] = useState(false);
   const [pendingCategoryId, setPendingCategoryId] = useState<string | null>(null);
 
@@ -50,13 +54,28 @@ export const useAddTransaction = ({
     [dateLocale, selectedDate],
   );
 
+  const mergedCategories = useMemo(() => {
+    const categoryMap = new Map<string, Category>();
+
+    for (const category of categories) {
+      categoryMap.set(category.id, category);
+    }
+
+    for (const category of localCategories) {
+      if (!categoryMap.has(category.id)) {
+        categoryMap.set(category.id, category);
+      }
+    }
+
+    return Array.from(categoryMap.values());
+  }, [categories, localCategories]);
+
   const isSubmitDisabled = useMemo(() => {
     const hasAmount = Number(amount) > 0;
-    const hasDescription = description.trim().length > 0;
     const hasCategory = Boolean(selectedCategory);
 
-    return !(hasAmount && hasDescription && hasCategory) || isSaving;
-  }, [amount, description, selectedCategory, isSaving]);
+    return !(hasAmount && hasCategory) || isSaving;
+  }, [amount, selectedCategory, isSaving]);
 
   const handleSubmit = async () => {
     setSubmitAttempted(true);
@@ -64,7 +83,7 @@ export const useAddTransaction = ({
       return;
     }
 
-    const category = categories.find(item => item.id === selectedCategory);
+    const category = mergedCategories.find(item => item.id === selectedCategory);
     const transaction = {
       id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
       type: activeType,
@@ -85,12 +104,11 @@ export const useAddTransaction = ({
   };
 
   const handleAmountBlur = () => setTouchedAmount(true);
-  const handleDescriptionBlur = () => setTouchedDescription(true);
+  const handleDescriptionBlur = () => {};
 
   const showAmountError =
     (submitAttempted || touchedAmount) && Number(amount) <= 0;
-  const showDescriptionError =
-    (submitAttempted || touchedDescription) && description.trim().length === 0;
+  const showDescriptionError = false;
   const showCategoryError =
     (submitAttempted || touchedCategory) && !selectedCategory;
 
@@ -103,7 +121,7 @@ export const useAddTransaction = ({
   useEffect(() => {
     let isMounted = true;
     const loadPreferences = async () => {
-      const [lastType, lastCategory] = await Promise.all([
+      const [, lastCategory] = await Promise.all([
         preferencesRepository.get('lastType'),
         preferencesRepository.get('lastCategoryId'),
       ]);
@@ -112,9 +130,6 @@ export const useAddTransaction = ({
         return;
       }
 
-      if (lastType === 'expense' || lastType === 'income') {
-        setActiveType(lastType);
-      }
       if (lastCategory) {
         setPendingCategoryId(lastCategory);
       }
@@ -128,16 +143,19 @@ export const useAddTransaction = ({
   }, []);
 
   useEffect(() => {
-    if (!pendingCategoryId || categories.length === 0) {
+    if (!pendingCategoryId || mergedCategories.length === 0) {
       return;
     }
 
-    const match = categories.find(category => category.id === pendingCategoryId);
+    const match = mergedCategories.find(
+      category =>
+        category.id === pendingCategoryId && category.type === activeType,
+    );
     if (match) {
       setSelectedCategory(match.id);
     }
     setPendingCategoryId(null);
-  }, [categories, pendingCategoryId]);
+  }, [activeType, mergedCategories, pendingCategoryId]);
 
   useEffect(() => {
     if (!submittedId || submittedId !== lastCreatedId) {
@@ -162,13 +180,19 @@ export const useAddTransaction = ({
     setFocusedField(null);
     setSubmitAttempted(false);
     setTouchedAmount(false);
-    setTouchedDescription(false);
     setTouchedCategory(false);
     if (onClose) {
       onClose();
     }
     setSubmittedId(null);
-  }, [dispatch, lastCreatedId, onClose, submittedId]);
+  }, [
+    activeType,
+    dispatch,
+    lastCreatedId,
+    onClose,
+    selectedCategory,
+    submittedId,
+  ]);
 
   useEffect(() => {
     if (saveStatus !== 'failed' || !submittedId) {
@@ -195,9 +219,34 @@ export const useAddTransaction = ({
     }
   };
 
+  const addCustomCategory = (name: string, emoji: string) => {
+    const trimmedName = name.trim();
+    const trimmedEmoji = emoji.trim() || '✨';
+
+    if (!trimmedName) {
+      return null;
+    }
+
+    const category: Category = {
+      id: `custom-${activeType}-${Date.now()}`,
+      type: activeType,
+      name: trimmedName,
+      emoji: trimmedEmoji,
+      isDefault: false,
+      labelKey: null,
+      createdAt: new Date().toISOString(),
+    };
+
+    setLocalCategories(current => [category, ...current]);
+    setSelectedCategory(category.id);
+    setTouchedCategory(true);
+    dispatch(addCategoryRequested(category));
+
+    return category;
+  };
+
   return {
     activeType,
-    setActiveType,
     focusedField,
     setFocusedField,
     amount,
@@ -211,7 +260,7 @@ export const useAddTransaction = ({
     showDatePicker,
     setShowDatePicker,
     formattedDate,
-    categories,
+    categories: mergedCategories,
     isSubmitDisabled,
     isSaving,
     showAmountError,
@@ -222,5 +271,6 @@ export const useAddTransaction = ({
     handleDescriptionBlur,
     handleDateChange,
     handleSubmit,
+    addCustomCategory,
   };
 };
