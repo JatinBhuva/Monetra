@@ -25,6 +25,7 @@ export type ThemeColors = {
   successSoft: string;
   successBright: string;
   successMuted: string;
+  investmentHighlight: string;
   warningSoft: string;
   accentBlue: string;
   accentBlueSoft: string;
@@ -66,6 +67,7 @@ export const lightColors: ThemeColors = {
   successSoft: '#EAF5EE',
   successBright: '#0CCB4A',
   successMuted: '#E6F7EC',
+  investmentHighlight: '#DDF8E6',
   warningSoft: '#FFD7D1',
   accentBlue: '#1D4ED8',
   accentBlueSoft: '#EEF2FF',
@@ -107,6 +109,7 @@ export const darkColors: ThemeColors = {
   successSoft: '#173122',
   successBright: '#5CF2A2',
   successMuted: '#1C3A28',
+  investmentHighlight: '#1C3A28',
   warningSoft: '#4D2A27',
   accentBlue: '#7FB3FF',
   accentBlueSoft: '#20304D',

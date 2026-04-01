@@ -6,6 +6,8 @@ import type { LoggedInStackParamList } from '../types';
 import { ScreenConstants } from '../utils/constants';
 import { RootTabNavigator } from './RootTabNavigator';
 import AddTransactionScreen from '../screens/AddTransaction';
+import AddInvestmentScreen from '../screens/AddInvestment';
+import InvestmentsScreen from '../screens/Investments';
 import MonthTransactionsScreen from '../screens/Transactions/MonthTransactionsScreen';
 import CategoryBreakdownScreen from '../screens/Analysis/CategoryBreakdownScreen';
 import ManageCategoriesScreen from '../screens/Settings/ManageCategoriesScreen';
@@ -47,6 +49,18 @@ const MonthTransactionsRouteScreen = () => {
   );
 };
 
+const AddInvestmentRouteScreen = () => {
+  const navigation = useNavigation();
+
+  return <AddInvestmentScreen onClose={() => navigation.goBack()} />;
+};
+
+const InvestmentsRouteScreen = () => {
+  const navigation = useNavigation();
+
+  return <InvestmentsScreen onBack={() => navigation.goBack()} />;
+};
+
 const AnalysisCategoriesRouteScreen = () => {
   const navigation = useNavigation();
   const route =
@@ -83,6 +97,15 @@ export const LoggedInNavigator = () => (
       name={ScreenConstants.ADD_TRANSACTION_SCREEN}
       component={AddTransactionRouteScreen}
       options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+    />
+    <Stack.Screen
+      name={ScreenConstants.ADD_INVESTMENT_SCREEN}
+      component={AddInvestmentRouteScreen}
+      options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+    />
+    <Stack.Screen
+      name={ScreenConstants.INVESTMENTS_SCREEN}
+      component={InvestmentsRouteScreen}
     />
     <Stack.Screen
       name={ScreenConstants.MONTH_TRANSACTIONS_SCREEN}

@@ -161,11 +161,12 @@ That script creates:
 - `public.app_categories`
 - `public.app_transactions`
 - `public.app_preferences`
+- `public.app_investments`
 
 Current sync behavior:
 
 - login restores the current user's remote snapshot into local SQLite
-- local transaction/category/preference writes are mirrored to Supabase for the active user
+- local transaction/category/preference/investment writes are mirrored to Supabase for the active user
 - switching users resets the local SQLite snapshot before pulling the other user's data
 - if the device is offline, failed cloud writes are queued locally and retried automatically when the network returns
 

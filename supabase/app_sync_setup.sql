@@ -1,4 +1,5 @@
 drop table if exists public.app_preferences;
+drop table if exists public.app_investments;
 drop table if exists public.app_transactions;
 drop table if exists public.app_categories;
 
@@ -33,17 +34,33 @@ create table public.app_preferences (
   primary key (owner_id, key)
 );
 
+create table public.app_investments (
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  id text not null,
+  type text not null,
+  amount text not null,
+  date timestamptz not null,
+  policy_number text,
+  policy_start_date timestamptz,
+  note text,
+  created_at timestamptz not null,
+  primary key (owner_id, id)
+);
+
 alter table public.app_categories enable row level security;
 alter table public.app_transactions enable row level security;
 alter table public.app_preferences enable row level security;
+alter table public.app_investments enable row level security;
 
 revoke all on public.app_categories from anon;
 revoke all on public.app_transactions from anon;
 revoke all on public.app_preferences from anon;
+revoke all on public.app_investments from anon;
 
 grant select, insert, update, delete on public.app_categories to authenticated;
 grant select, insert, update, delete on public.app_transactions to authenticated;
 grant select, insert, update, delete on public.app_preferences to authenticated;
+grant select, insert, update, delete on public.app_investments to authenticated;
 
 drop policy if exists "categories_select_own" on public.app_categories;
 create policy "categories_select_own"
@@ -128,6 +145,35 @@ with check (owner_id = auth.uid());
 drop policy if exists "preferences_delete_own" on public.app_preferences;
 create policy "preferences_delete_own"
 on public.app_preferences
+for delete
+to authenticated
+using (owner_id = auth.uid());
+
+drop policy if exists "investments_select_own" on public.app_investments;
+create policy "investments_select_own"
+on public.app_investments
+for select
+to authenticated
+using (owner_id = auth.uid());
+
+drop policy if exists "investments_insert_own" on public.app_investments;
+create policy "investments_insert_own"
+on public.app_investments
+for insert
+to authenticated
+with check (owner_id = auth.uid());
+
+drop policy if exists "investments_update_own" on public.app_investments;
+create policy "investments_update_own"
+on public.app_investments
+for update
+to authenticated
+using (owner_id = auth.uid())
+with check (owner_id = auth.uid());
+
+drop policy if exists "investments_delete_own" on public.app_investments;
+create policy "investments_delete_own"
+on public.app_investments
 for delete
 to authenticated
 using (owner_id = auth.uid());

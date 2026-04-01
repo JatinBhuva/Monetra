@@ -82,7 +82,7 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceStrongAlt,
   },
   summaryTileSecondary: {
-    backgroundColor: colors.successSoft,
+    backgroundColor: colors.investmentHighlight,
   },
   summaryTileTop: {
     flexDirection: 'row',
@@ -97,6 +97,9 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     letterSpacing: 1.6,
     fontWeight: typography.weight.semiBold,
   },
+  summaryTileEyebrowSecondary: {
+    color: '#1C8E49',
+  },
   summaryBadge: {
     minHeight: 28,
     borderRadius: 14,
@@ -108,7 +111,7 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.12)',
   },
   summaryBadgeDark: {
-    backgroundColor: colors.successMuted,
+    backgroundColor: 'rgba(10, 138, 56, 0.1)',
   },
   summaryBadgeText: {
     fontSize: typography.size.xs,
@@ -118,7 +121,7 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   summaryBadgeTextDark: {
     fontSize: typography.size.xs,
     fontWeight: typography.weight.semiBold,
-    color: colors.success,
+    color: '#1C8E49',
   },
   summaryTileTitle: {
     fontSize: typography.size.md,
@@ -126,6 +129,9 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontWeight: typography.weight.semiBold,
     marginBottom: spacing.s8,
     maxWidth: '72%',
+  },
+  summaryTileTitleSecondary: {
+    color: colors.textPrimary,
   },
   summaryTileAmount: {
     fontSize: 34,
@@ -137,11 +143,17 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   summaryTileAmountPositive: {
     color: colors.success,
   },
+  summaryTileAmountSecondary: {
+    color: '#0F8A3F',
+  },
   summaryTileCaption: {
     fontSize: typography.size.sm,
     lineHeight: 21,
     color: colors.textInverseMuted,
     maxWidth: '70%',
+  },
+  summaryTileCaptionSecondary: {
+    color: colors.textSecondary,
   },
   summaryTileIconWrap: {
     position: 'absolute',
@@ -155,11 +167,51 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   summaryTileIconWrapDark: {
-    backgroundColor: colors.successMuted,
+    backgroundColor: 'rgba(10, 138, 56, 0.1)',
   },
   summaryTileIcon: {
     fontSize: 24,
     color: colors.textInverse,
+  },
+  summaryTileIconSecondary: {
+    color: '#1C8E49',
+  },
+  investGraphicOrbit: {
+    position: 'absolute',
+    right: -26,
+    bottom: -28,
+    width: 118,
+    height: 118,
+    borderRadius: 59,
+    borderWidth: 10,
+    borderColor: 'rgba(10, 122, 56, 0.1)',
+  },
+  investGraphicCore: {
+    position: 'absolute',
+    right: 26,
+    bottom: 20,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: 'rgba(10, 122, 56, 0.14)',
+  },
+  investGraphicDot: {
+    position: 'absolute',
+    right: 72,
+    top: 24,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(10, 122, 56, 0.14)',
+  },
+  investGraphicDotAlt: {
+    position: 'absolute',
+    right: 88,
+    top: 36,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: 'rgba(10, 122, 56, 0.11)',
   },
   sectionHeader: {
     flexDirection: 'row',

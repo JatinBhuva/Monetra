@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { assets } from '../../assets';
 import { ScreenHeader } from '../../components';
@@ -18,6 +19,7 @@ import { useTabBarSpacing } from '../../hooks/useTabBarSpacing';
 import { ScreenConstants } from '../../utils/constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createStyles } from './styles';
+import type { LoggedInStackParamList } from '../../types';
 
 const DashboardIcon = assets.icons.dashboard;
 
@@ -51,12 +53,13 @@ const formatRelativeDate = (value: string) => {
 
 const DashboardScreen = () => {
   const styles = useThemedStyles(createStyles);
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<LoggedInStackParamList>>();
   const {
     status,
     monthStatsStatus,
     monthExpenseTotal,
-    monthIncomeTotal,
+    monthInvestmentTotal,
     monthTransactionCount,
     recentTransactions,
     monthLabel,
@@ -73,8 +76,8 @@ const DashboardScreen = () => {
     [monthExpenseTotal],
   );
   const investmentTeaserAmount = useMemo(
-    () => formatAmount(monthIncomeTotal),
-    [monthIncomeTotal],
+    () => formatAmount(monthInvestmentTotal),
+    [monthInvestmentTotal],
   );
 
   return (
@@ -118,27 +121,33 @@ const DashboardScreen = () => {
             </View>
           </View>
 
-          <View style={[styles.summaryTile, styles.summaryTileSecondary]}>
+          <Pressable
+            onPress={() => navigation.navigate(ScreenConstants.INVESTMENTS_SCREEN)}
+            style={[styles.summaryTile, styles.summaryTileSecondary]}
+          >
             <View style={styles.summaryTileTop}>
-              <Text style={styles.summaryTileEyebrow}>Invest</Text>
+              <Text style={[styles.summaryTileEyebrow, styles.summaryTileEyebrowSecondary]}>
+                Invest
+              </Text>
               <View style={[styles.summaryBadge, styles.summaryBadgeDark]}>
-                <Text style={styles.summaryBadgeTextDark}>Soon</Text>
+                <Text style={styles.summaryBadgeTextDark}>{monthLabel}</Text>
               </View>
             </View>
-            <Text style={styles.summaryTileTitle}>
+            <Text style={[styles.summaryTileTitle, styles.summaryTileTitleSecondary]}>
               {strings.dashboardScreen.investmentTitle}
             </Text>
             <Text
               style={[
                 styles.summaryTileAmount,
                 styles.summaryTileAmountPositive,
+                styles.summaryTileAmountSecondary,
               ]}
             >
               {strings.transactions.currencySymbol}
               {investmentTeaserAmount}
             </Text>
-            <Text style={styles.summaryTileCaption}>
-              Investment tracking layer not enabled yet
+            <Text style={[styles.summaryTileCaption, styles.summaryTileCaptionSecondary]}>
+              Investment entries tracked this month
             </Text>
             <View
               style={[
@@ -146,9 +155,9 @@ const DashboardScreen = () => {
                 styles.summaryTileIconWrapDark,
               ]}
             >
-              <Text style={styles.summaryTileIcon}>◎</Text>
+              <Text style={[styles.summaryTileIcon, styles.summaryTileIconSecondary]}>◎</Text>
             </View>
-          </View>
+          </Pressable>
         </View>
 
         <View style={styles.sectionHeader}>
@@ -246,7 +255,10 @@ const DashboardScreen = () => {
           <Text style={styles.insightBody}>
             {strings.dashboardScreen.insightBody}
           </Text>
-          <Pressable style={styles.insightButton}>
+          <Pressable
+            style={styles.insightButton}
+            onPress={() => navigation.navigate(ScreenConstants.ADD_INVESTMENT_SCREEN)}
+          >
             <Text style={styles.insightButtonText}>
               {strings.dashboardScreen.insightAction}
             </Text>

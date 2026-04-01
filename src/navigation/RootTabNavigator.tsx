@@ -13,7 +13,6 @@ import type { LoggedInStackParamList, RootTabParamList } from '../types';
 import { ScreenConstants } from '../utils/constants';
 import { strings } from '../utils/strings';
 import { useAppTheme } from '../theme';
-import { showPopup, store } from '../store';
 import { assets } from '../assets';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -149,15 +148,9 @@ export const RootTabNavigator = () => {
     });
   };
 
-  const handleFutureFlowPress = () => {
+  const openInvestmentFlow = () => {
     setIsQuickActionOpen(false);
-    store.dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.investmentFlowMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
+    navigation.navigate(ScreenConstants.ADD_INVESTMENT_SCREEN);
   };
 
   const screenOptions = useMemo(
@@ -293,7 +286,7 @@ export const RootTabNavigator = () => {
               </Pressable>
               <Pressable
                 style={styles.quickActionButton}
-                onPress={handleFutureFlowPress}
+                onPress={openInvestmentFlow}
               >
                 <Text style={styles.quickActionButtonText}>
                   {strings.transactions.quickActionInvestment}
@@ -301,7 +294,7 @@ export const RootTabNavigator = () => {
               </Pressable>
               <Pressable
                 style={styles.quickActionButton}
-                onPress={handleFutureFlowPress}
+                onPress={openInvestmentFlow}
               >
                 <Text style={styles.quickActionButtonText}>
                   {strings.transactions.quickActionWithdraw}

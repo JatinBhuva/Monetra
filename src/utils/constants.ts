@@ -3,6 +3,8 @@ export const ScreenConstants = {
   DASHBOARD_SCREEN: 'DashboardScreen',
   ADD_ACTION: 'AddAction',
   ADD_TRANSACTION_SCREEN: 'AddTransactionScreen',
+  ADD_INVESTMENT_SCREEN: 'AddInvestmentScreen',
+  INVESTMENTS_SCREEN: 'InvestmentsScreen',
   TRANSACTIONS_SCREEN: 'TransactionsScreen',
   MONTH_TRANSACTIONS_SCREEN: 'MonthTransactionsScreen',
   ANALYSIS_SCREEN: 'AnalysisScreen',

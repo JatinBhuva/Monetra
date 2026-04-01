@@ -24,6 +24,8 @@ export type LoggedInStackParamList = {
   [ScreenConstants.ADD_TRANSACTION_SCREEN]: {
     initialType: 'expense' | 'income';
   };
+  [ScreenConstants.ADD_INVESTMENT_SCREEN]: undefined;
+  [ScreenConstants.INVESTMENTS_SCREEN]: undefined;
   [ScreenConstants.MONTH_TRANSACTIONS_SCREEN]: {
     monthLabel: string;
     startDate: string;

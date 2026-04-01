@@ -109,7 +109,7 @@ const matchesSearch = (transaction: Transaction, searchValue: string) => {
   );
 };
 
-const EmptyState = () => (
+const EmptyState = ({ styles }: { styles: ReturnType<typeof createStyles> }) => (
   <View style={styles.emptyState}>
     <Text style={styles.emptyTitle}>
       {strings.transactionsScreen.emptyTitle}
@@ -281,7 +281,7 @@ const TransactionsScreen = () => {
           onEndReachedThreshold={0.4}
           onRefresh={refresh}
           refreshing={isRefreshing}
-          ListEmptyComponent={EmptyState}
+          ListEmptyComponent={<EmptyState styles={styles} />}
           ListFooterComponent={
             isLoadingMore ? (
               <View style={styles.footerLoader}>
