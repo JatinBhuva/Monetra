@@ -6,7 +6,6 @@ import { categorySeeds } from '../../utils/categorySeeds';
 import {
   addCategoryFailed,
   addCategoryRequested,
-  addCategorySucceeded,
   loadCategoriesFailed,
   loadCategoriesRequested,
   loadCategoriesSucceeded,
@@ -46,7 +45,11 @@ function* handleLoadCategories() {
 function* handleAddCategory(action: { payload: Category }) {
   try {
     yield call([categoryRepository, categoryRepository.upsert], action.payload);
-    yield put(addCategorySucceeded(action.payload));
+    const items: Category[] = yield call([
+      categoryRepository,
+      categoryRepository.listAll,
+    ]);
+    yield put(loadCategoriesSucceeded(items));
   } catch (error) {
     yield put(
       addCategoryFailed(

@@ -9,7 +9,8 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { styles } from './styles';
+import { useThemedStyles } from '../../../theme';
+import { createStyles } from './styles';
 
 type PrimaryActionButtonProps = {
   label: string;
@@ -32,6 +33,7 @@ export const PrimaryActionButton = ({
   style,
   textStyle,
 }: PrimaryActionButtonProps) => {
+  const styles = useThemedStyles(createStyles);
   const isDisabled = Boolean(disabled || isLoading);
   const spinnerColor = textColor ?? styles.label.color;
 

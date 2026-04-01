@@ -25,6 +25,21 @@ export const useDashboard = () => {
   }, [dispatch]);
 
   const recentTransactions = useMemo(() => items.slice(0, 5), [items]);
+  const monthIncomeTotal = useMemo(
+    () =>
+      items
+        .filter(item => {
+          const itemDate = new Date(item.date);
+          const now = new Date();
+          return (
+            item.type === 'income' &&
+            itemDate.getMonth() === now.getMonth() &&
+            itemDate.getFullYear() === now.getFullYear()
+          );
+        })
+        .reduce((sum, item) => sum + Number(item.amount), 0),
+    [items],
+  );
   const monthLabel = useMemo(() => {
     const now = new Date();
     return now.toLocaleDateString(strings.transactions.dateLocale, {
@@ -37,6 +52,7 @@ export const useDashboard = () => {
     status,
     monthStatsStatus,
     monthExpenseTotal,
+    monthIncomeTotal,
     monthTransactionCount,
     recentTransactions,
     monthLabel,

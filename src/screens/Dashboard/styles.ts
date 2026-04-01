@@ -1,78 +1,342 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography, type ThemeColors } from '../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
   content: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.s6,
+    paddingTop: spacing.s18,
     paddingBottom: spacing.xxl,
   },
-  heroCard: {
-    backgroundColor: colors.primary,
-    borderRadius: spacing.s20,
-    padding: spacing.lg,
-    marginBottom: spacing.xl,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  heroTop: {
+  headerRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.s12,
+    marginBottom: spacing.s24,
   },
-  heroLabel: {
-    fontSize: typography.size.sm,
-    color: colors.surface,
-    opacity: 0.7,
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  heroMonth: {
-    fontSize: typography.size.sm,
-    color: colors.surface,
-    fontWeight: typography.weight.medium,
+  headerIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceStrongAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.s12,
   },
-  heroAmount: {
-    fontSize: typography.size.xl,
+  headerTitle: {
+    fontSize: 22,
     fontWeight: typography.weight.bold,
-    color: colors.surface,
-    marginBottom: spacing.s4,
+    color: colors.textPrimary,
   },
-  heroSubLabel: {
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s12,
+  },
+  notificationChip: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceSecondary,
+  },
+  notificationGlyph: {
+    fontSize: 16,
+    fontWeight: typography.weight.bold,
+    color: colors.textSecondary,
+  },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accentBlue,
+  },
+  avatarText: {
+    color: colors.textInverse,
     fontSize: typography.size.sm,
-    color: colors.surface,
-    opacity: 0.7,
-    marginBottom: spacing.md,
+    fontWeight: typography.weight.bold,
+  },
+  summaryGrid: {
+    gap: spacing.s14,
+    marginBottom: spacing.s20,
+  },
+  summaryTile: {
+    borderRadius: 26,
+    paddingHorizontal: spacing.s18,
+    paddingVertical: spacing.s18,
+    overflow: 'hidden',
+    minHeight: 176,
+  },
+  summaryTilePrimary: {
+    backgroundColor: colors.surfaceStrongAlt,
+  },
+  summaryTileSecondary: {
+    backgroundColor: colors.successSoft,
+  },
+  summaryTileTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.s16,
+  },
+  summaryTileEyebrow: {
+    fontSize: typography.size.sm,
+    color: colors.textInverseMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+    fontWeight: typography.weight.semiBold,
+  },
+  summaryBadge: {
+    minHeight: 28,
+    borderRadius: 14,
+    paddingHorizontal: spacing.s10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryBadgeLight: {
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  summaryBadgeDark: {
+    backgroundColor: colors.successMuted,
+  },
+  summaryBadgeText: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textInverse,
+  },
+  summaryBadgeTextDark: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semiBold,
+    color: colors.success,
+  },
+  summaryTileTitle: {
+    fontSize: typography.size.md,
+    color: colors.textInverse,
+    fontWeight: typography.weight.semiBold,
+    marginBottom: spacing.s8,
+    maxWidth: '72%',
+  },
+  summaryTileAmount: {
+    fontSize: 34,
+    lineHeight: 38,
+    color: colors.textInverse,
+    fontWeight: typography.weight.bold,
+    marginBottom: spacing.s10,
+  },
+  summaryTileAmountPositive: {
+    color: colors.success,
+  },
+  summaryTileCaption: {
+    fontSize: typography.size.sm,
+    lineHeight: 21,
+    color: colors.textInverseMuted,
+    maxWidth: '70%',
+  },
+  summaryTileIconWrap: {
+    position: 'absolute',
+    right: spacing.s18,
+    bottom: spacing.s18,
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryTileIconWrapDark: {
+    backgroundColor: colors.successMuted,
+  },
+  summaryTileIcon: {
+    fontSize: 24,
+    color: colors.textInverse,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.md,
+    marginTop: spacing.s10,
+    marginBottom: spacing.s16,
+  },
+  sectionHeaderAlt: {
+    marginTop: spacing.s28,
+    marginBottom: spacing.s16,
   },
   sectionTitle: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semiBold,
+    fontSize: 20,
+    fontWeight: typography.weight.bold,
     color: colors.textPrimary,
   },
-  recentSeparator: {
-    height: spacing.s10,
+  viewAllText: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semiBold,
+    color: colors.primary,
   },
-  emptyRecent: {
+  transactionList: {
+    gap: spacing.s16,
+  },
+  transactionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 22,
+    paddingVertical: spacing.s16,
+    paddingHorizontal: spacing.s16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 1,
+  },
+  transactionIconBox: {
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    backgroundColor: colors.backgroundSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.s14,
+  },
+  transactionIcon: {
+    fontSize: 24,
+  },
+  transactionContent: {
+    flex: 1,
+    paddingRight: spacing.s12,
+  },
+  transactionTitle: {
+    fontSize: 16,
+    fontWeight: typography.weight.semiBold,
+    color: colors.textPrimary,
+    marginBottom: spacing.s4,
+  },
+  transactionMeta: {
     fontSize: typography.size.sm,
     color: colors.muted,
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
+  },
+  transactionAmountPositive: {
+    color: colors.primary,
   },
   fullScreenLoader: {
     paddingVertical: spacing.xl,
     alignItems: 'center',
   },
-  loader: {
-    color: colors.surface,
+  emptyRecent: {
+    fontSize: typography.size.sm,
+    color: colors.muted,
+  },
+  insightHero: {
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceStrong,
+    borderRadius: 24,
+    padding: spacing.s20,
+    marginBottom: spacing.s18,
+  },
+  insightBadge: {
+    alignSelf: 'flex-start',
+    color: colors.successBright,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+    marginBottom: spacing.s16,
+  },
+  insightHeadline: {
+    color: colors.textInverse,
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: typography.weight.bold,
+    marginBottom: spacing.s12,
+    maxWidth: '80%',
+  },
+  insightBody: {
+    color: colors.textInverseMuted,
+    fontSize: typography.size.md,
+    lineHeight: 26,
+    marginBottom: spacing.s18,
+    maxWidth: '84%',
+  },
+  insightButton: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    paddingHorizontal: spacing.s24,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  insightButtonText: {
+    color: colors.primaryContrast,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semiBold,
+  },
+  insightDecorationOuter: {
+    position: 'absolute',
+    right: -48,
+    bottom: -42,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 24,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  insightDecorationInner: {
+    position: 'absolute',
+    right: 34,
+    bottom: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  noteCard: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 24,
+    padding: spacing.s20,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  noteIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.s14,
+  },
+  noteIcon: {
+    color: colors.textSecondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+  },
+  noteContent: {
+    flex: 1,
+  },
+  noteTitle: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: typography.weight.semiBold,
+    marginBottom: spacing.s8,
+  },
+  noteBody: {
+    color: colors.muted,
+    fontSize: typography.size.md,
+    lineHeight: 25,
   },
 });

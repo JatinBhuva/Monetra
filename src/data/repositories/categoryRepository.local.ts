@@ -62,4 +62,26 @@ export class LocalCategoryRepository implements CategoryRepository {
     );
     return Number(result.rows.item(0).count ?? 0);
   }
+
+  async getUsageCounts() {
+    const db = await getDb();
+    const [result] = await db.executeSql(
+      `SELECT categoryId, COUNT(*) as usageCount
+      FROM transactions
+      GROUP BY categoryId;`,
+    );
+
+    const usageCounts: Record<string, number> = {};
+
+    for (let i = 0; i < result.rows.length; i += 1) {
+      const row = result.rows.item(i);
+      if (!row?.categoryId) {
+        continue;
+      }
+
+      usageCounts[row.categoryId] = Number(row.usageCount ?? 0);
+    }
+
+    return usageCounts;
+  }
 }

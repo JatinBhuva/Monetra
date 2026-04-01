@@ -1,108 +1,56 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Linking } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../../auth/AuthContext';
 import packageJson from '../../../package.json';
-import { preferencesRepository } from '../../data/repositories/preferencesRepository';
-import {
-  clearDatabaseRequested,
-  clearDatabaseReset,
-  showPopup,
-} from '../../store';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { resolveCategoryLabel } from '../../utils/categoryLabel';
+import { showPopup } from '../../store';
+import { useAppDispatch } from '../../store/hooks';
+import { useAppTheme } from '../../theme';
+import type { LoggedInStackParamList } from '../../types';
+import { ScreenConstants } from '../../utils/constants';
 import { strings } from '../../utils/strings';
 
 export const useSettings = () => {
   const dispatch = useAppDispatch();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<LoggedInStackParamList>>();
   const { session, signOut } = useAuth();
-  const clearStatus = useAppSelector(state => state.maintenance.clearStatus);
-  const categories = useAppSelector(state => state.categories.items);
-  const [lastType, setLastType] = useState<string | null>(null);
-  const [lastCategoryId, setLastCategoryId] = useState<string | null>(null);
+  const { isDark, toggleTheme } = useAppTheme();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const handleClearDatabase = () => {
-    dispatch(clearDatabaseRequested());
-  };
-
-  const handleManageCategories = () => {
+  const showComingSoon = (message: string) => {
     dispatch(
       showPopup({
         title: strings.popup.comingSoonTitle,
-        message: strings.popup.manageCategoriesMessage,
+        message,
         buttonLabel: strings.popup.okButton,
       }),
     );
   };
 
-  const handleManageLanguage = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.languageMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-  };
+  const openSupportEmail = async () => {
+    const email = strings.auth.adminEmail;
+    const subject = encodeURIComponent(strings.settings.helpCenterSubject);
+    const body = encodeURIComponent(strings.settings.helpCenterBody);
+    const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
 
-  const handleExportData = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.exportDataMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-  };
-
-  const handleImportData = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.importDataMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-  };
-
-  const handleBackupSync = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.backupSyncMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-  };
-
-  const handleQuickDate = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.quickDateMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-  };
-
-  const handleRecurring = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.recurringMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-  };
-
-  const handleMultiCurrency = () => {
-    dispatch(
-      showPopup({
-        title: strings.popup.comingSoonTitle,
-        message: strings.popup.multiCurrencyMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
+    try {
+      const canOpen = await Linking.canOpenURL(mailtoUrl);
+      if (!canOpen) {
+        throw new Error('Mail app unavailable');
+      }
+      await Linking.openURL(mailtoUrl);
+    } catch {
+      dispatch(
+        showPopup({
+          title: strings.popup.comingSoonTitle,
+          message: strings.settings.helpFallbackMessage,
+          buttonLabel: strings.popup.okButton,
+        }),
+      );
+    }
   };
 
   const handleLogout = async () => {
@@ -114,70 +62,28 @@ export const useSettings = () => {
       setIsSigningOut(false);
     }
   };
-
-  const lastCategoryLabel = useMemo(() => {
-    if (!lastCategoryId) {
-      return null;
-    }
-    const match = categories.find(item => item.id === lastCategoryId);
-    return match ? resolveCategoryLabel(match) : null;
-  }, [categories, lastCategoryId]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    const loadSelections = async () => {
-      const [storedType, storedCategoryId] = await Promise.all([
-        preferencesRepository.get('lastType'),
-        preferencesRepository.get('lastCategoryId'),
-      ]);
-
-      if (!isActive) {
-        return;
-      }
-
-      setLastType(storedType);
-      setLastCategoryId(storedCategoryId);
-    };
-
-    loadSelections();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (clearStatus !== 'succeeded') {
-      return;
+  const email = useMemo(() => {
+    if (!session?.userId || session.userId === strings.settings.currentSelectionNone) {
+      return strings.settings.currentSelectionNone;
     }
 
-    dispatch(
-      showPopup({
-        title: strings.popup.databaseClearedTitle,
-        message: strings.popup.databaseClearedMessage,
-        buttonLabel: strings.popup.okButton,
-      }),
-    );
-    dispatch(clearDatabaseReset());
-  }, [clearStatus, dispatch]);
+    return `${session.userId}@monetra.app`;
+  }, [session?.userId]);
 
   return {
-    clearStatus,
-    handleClearDatabase,
-    handleManageCategories,
-    handleManageLanguage,
-    handleExportData,
-    handleImportData,
-    handleBackupSync,
-    handleQuickDate,
-    handleRecurring,
-    handleMultiCurrency,
     handleLogout,
-    lastType,
-    lastCategoryLabel,
+    handleAccountPreferences: () =>
+      showComingSoon(strings.settings.accountPreferencesDescription),
+    handleManageCategories: () =>
+      navigation.navigate(ScreenConstants.MANAGE_CATEGORIES_SCREEN),
+    handlePasswordSecurity: () =>
+      showComingSoon(strings.settings.passwordSecurityDescription),
+    handleHelpCenter: openSupportEmail,
     currentUserId: session?.userId ?? strings.settings.currentSelectionNone,
+    email,
     isSigningOut,
     appVersion: packageJson.version ?? '0.0.0',
+    isDarkTheme: isDark,
+    toggleTheme,
   };
 };
