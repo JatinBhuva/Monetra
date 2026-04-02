@@ -1,7 +1,10 @@
 import { getDb } from '../db/sqlite';
 import type { Investment, InvestmentType } from '../../types/investments';
 import type { InvestmentRepository } from './investmentRepository';
-import { syncInvestmentUpsertToRemote } from '../../services/syncService';
+import {
+  syncInvestmentDeleteToRemote,
+  syncInvestmentUpsertToRemote,
+} from '../../services/syncService';
 
 export class LocalInvestmentRepository implements InvestmentRepository {
   async create(investment: Investment) {
@@ -22,6 +25,16 @@ export class LocalInvestmentRepository implements InvestmentRepository {
       ],
     );
     await syncInvestmentUpsertToRemote(investment);
+  }
+
+  async update(investment: Investment) {
+    await this.create(investment);
+  }
+
+  async remove(id: string) {
+    const db = await getDb();
+    await db.executeSql('DELETE FROM investments WHERE id = ?;', [id]);
+    await syncInvestmentDeleteToRemote(id);
   }
 
   async listAll() {

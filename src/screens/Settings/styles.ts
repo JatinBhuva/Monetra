@@ -7,45 +7,13 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  headerWrap: {
     paddingHorizontal: spacing.s24,
     paddingTop: spacing.s12,
+  },
+  content: {
+    paddingHorizontal: spacing.s24,
     paddingBottom: spacing.xxl,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.s28,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  brandMark: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.s8,
-  },
-  brandText: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-  },
-  topAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.surfaceStrong,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  topAvatarIcon: {
-    fontSize: 16,
   },
   profileCard: {
     alignItems: 'center',
@@ -153,5 +121,52 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: typography.size.md,
     fontWeight: typography.weight.semiBold,
     color: colors.error,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.s24,
+  },
+  modalCard: {
+    maxHeight: '70%',
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.s14,
+    paddingHorizontal: spacing.s14,
+  },
+  modalTitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing.s12,
+  },
+  modalList: {
+    maxHeight: 420,
+  },
+  modalRow: {
+    minHeight: 48,
+    borderRadius: 12,
+    paddingHorizontal: spacing.s12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalRowSelected: {
+    backgroundColor: colors.successMuted,
+  },
+  modalRowLabel: {
+    color: colors.textPrimary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
+    flex: 1,
+    paddingRight: spacing.s8,
+  },
+  modalRowValue: {
+    color: colors.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semiBold,
   },
 });

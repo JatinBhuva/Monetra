@@ -12,30 +12,6 @@ export const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.xl,
       paddingBottom: spacing.xl,
     },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingTop: spacing.xl,
-      paddingBottom: spacing.s18,
-    },
-    title: {
-      fontSize: typography.size.xl,
-      fontWeight: typography.weight.bold,
-      color: colors.textPrimary,
-    },
-    backButton: {
-      width: 42,
-      height: 42,
-      borderRadius: 21,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.surface,
-    },
-    backIcon: {
-      fontSize: 22,
-      color: colors.textSecondary,
-    },
     segmentedControl: {
       flexDirection: 'row',
       backgroundColor: colors.surfaceMuted,

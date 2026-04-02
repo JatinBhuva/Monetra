@@ -7,6 +7,8 @@ type TransactionsState = {
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
   lastCreatedId: string | null;
+  lastUpdatedId: string | null;
+  lastDeletedId: string | null;
   offset: number;
   pageSize: number;
   hasMore: boolean;
@@ -23,6 +25,8 @@ const initialState: TransactionsState = {
   status: 'idle',
   error: null,
   lastCreatedId: null,
+  lastUpdatedId: null,
+  lastDeletedId: null,
   offset: 0,
   pageSize: 20,
   hasMore: true,
@@ -54,6 +58,7 @@ const transactionsSlice = createSlice({
     addTransactionRequested: (state, _action: PayloadAction<Transaction>) => {
       state.status = 'loading';
       state.error = null;
+      state.lastCreatedId = null;
     },
     addTransactionSucceeded: (state, action: PayloadAction<Transaction>) => {
       state.status = 'idle';
@@ -71,6 +76,36 @@ const transactionsSlice = createSlice({
       }
     },
     addTransactionFailed: (state, action: PayloadAction<string>) => {
+      state.status = 'failed';
+      state.error = action.payload;
+    },
+    updateTransactionRequested: (state, _action: PayloadAction<Transaction>) => {
+      state.status = 'loading';
+      state.error = null;
+      state.lastUpdatedId = null;
+    },
+    updateTransactionSucceeded: (state, action: PayloadAction<Transaction>) => {
+      state.status = 'idle';
+      state.lastUpdatedId = action.payload.id;
+      state.items = state.items
+        .map(item => (item.id === action.payload.id ? action.payload : item))
+        .sort((left, right) => right.date.localeCompare(left.date));
+    },
+    updateTransactionFailed: (state, action: PayloadAction<string>) => {
+      state.status = 'failed';
+      state.error = action.payload;
+    },
+    deleteTransactionRequested: (state, _action: PayloadAction<string>) => {
+      state.status = 'loading';
+      state.error = null;
+      state.lastDeletedId = null;
+    },
+    deleteTransactionSucceeded: (state, action: PayloadAction<string>) => {
+      state.status = 'idle';
+      state.lastDeletedId = action.payload;
+      state.items = state.items.filter(item => item.id !== action.payload);
+    },
+    deleteTransactionFailed: (state, action: PayloadAction<string>) => {
       state.status = 'failed';
       state.error = action.payload;
     },
@@ -138,6 +173,12 @@ export const {
   addTransactionRequested,
   addTransactionSucceeded,
   addTransactionFailed,
+  updateTransactionRequested,
+  updateTransactionSucceeded,
+  updateTransactionFailed,
+  deleteTransactionRequested,
+  deleteTransactionSucceeded,
+  deleteTransactionFailed,
   loadTransactionsRequested,
   loadTransactionsSucceeded,
   loadTransactionsFailed,

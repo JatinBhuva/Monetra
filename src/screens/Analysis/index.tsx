@@ -17,6 +17,7 @@ import { useAnalysis, type AnalysisRange } from './Analysis.hook';
 import { strings } from '../../utils/strings';
 import { spacing, useThemedStyles } from '../../theme';
 import { useTabBarSpacing } from '../../hooks/useTabBarSpacing';
+import { useCurrencyPreference } from '../../hooks/useCurrencyPreference';
 import type { LoggedInStackParamList } from '../../types';
 import { ScreenConstants } from '../../utils/constants';
 import { createStyles } from './styles';
@@ -26,19 +27,12 @@ const CHART_BAR_SLOT = 60;
 const CHART_TOOLTIP_WIDTH = 112;
 const CHART_SIDE_PADDING = 10;
 
-const formatCurrency = (amount: number) =>
-  `${strings.transactions.currencySymbol}${amount.toLocaleString(
-    strings.transactions.dateLocale,
-    {
-      maximumFractionDigits: 0,
-    },
-  )}`;
-
 const formatPercent = (value: number) =>
   `${value >= 0 ? '+' : ''}${Math.round(value)}%`;
 
 const AnalysisScreen = () => {
   const styles = useThemedStyles(createStyles);
+  const { currencySymbol } = useCurrencyPreference();
   const [range, setRange] = useState<AnalysisRange>('month');
   const [selectedBarIndex, setSelectedBarIndex] = useState(0);
   const chartScrollRef = useRef<ScrollView>(null);
@@ -126,18 +120,23 @@ const AnalysisScreen = () => {
   const handleChartContentSizeChange = (width: number) => {
     setChartContentWidth(width);
   };
+  const formatCurrency = (amount: number) =>
+    `${currencySymbol}${amount.toLocaleString(strings.transactions.dateLocale, {
+      maximumFractionDigits: 0,
+    })}`;
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: tabBarSpacing }]}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.headerWrap}>
         <ScreenHeader
           title={strings.navigation.analysis}
           icon={AnalysisIcon}
         />
-
+      </View>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarSpacing }]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.segmentedControl}>
           {(['month', 'year'] as const).map(item => {
             const isActive = range === item;

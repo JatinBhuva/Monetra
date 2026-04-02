@@ -1,21 +1,32 @@
-import React, { useEffect } from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AppState, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import type { Theme as NavigationTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BootSplash from 'react-native-bootsplash';
 
-import { GlobalPopupContainer } from './components';
+import { AppPasscodeGate, GlobalPopupContainer } from './components';
 import { AuthProvider, useAuth } from './auth/AuthContext';
+import { useAppPasscode } from './hooks/useAppPasscode';
 import { LoggedInNavigator } from './navigation';
 import LoginScreen from './screens/Login';
 import { store } from './store';
 import { ThemeProvider, useAppTheme } from './theme';
 
 const AppContent = () => {
-  const { isHydrating, session } = useAuth();
+  const SPLASH_MIN_DURATION_MS = 2000;
+  const { session } = useAuth();
+  const {
+    isEnabled: isAppPasscodeEnabled,
+    isLoading: isPasscodeLoading,
+    verify,
+  } = useAppPasscode();
   const { colors, isDark } = useAppTheme();
+  const [hasSplashElapsed, setHasSplashElapsed] = useState(false);
+  const [isLaunchReady, setIsLaunchReady] = useState(false);
+  const [hasEnteredApp, setHasEnteredApp] = useState(false);
+  const appStateRef = useRef(AppState.currentState);
   const navigationTheme = React.useMemo<NavigationTheme>(
     () => ({
       dark: isDark,
@@ -38,14 +49,77 @@ const AppContent = () => {
   );
 
   useEffect(() => {
-    if (!isHydrating) {
+    const timeoutId = setTimeout(() => {
+      setHasSplashElapsed(true);
+    }, SPLASH_MIN_DURATION_MS);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [SPLASH_MIN_DURATION_MS]);
+
+  useEffect(() => {
+    if (!hasSplashElapsed) {
+      return;
+    }
+
+    setIsLaunchReady(true);
+  }, [hasSplashElapsed]);
+
+  useEffect(() => {
+    if (isLaunchReady) {
       BootSplash.hide({ fade: true });
     }
-  }, [isHydrating]);
+  }, [isLaunchReady]);
 
-  if (isHydrating) {
+  useEffect(() => {
+    if (!session) {
+      setHasEnteredApp(false);
+      return;
+    }
+
+    if (isPasscodeLoading) {
+      return;
+    }
+
+    if (!isAppPasscodeEnabled) {
+      setHasEnteredApp(true);
+      return;
+    }
+
+    setHasEnteredApp(false);
+  }, [isAppPasscodeEnabled, isPasscodeLoading, session]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      const wasInBackground =
+        appStateRef.current === 'background' || appStateRef.current === 'inactive';
+
+      appStateRef.current = nextState;
+
+      if (
+        session &&
+        isAppPasscodeEnabled &&
+        wasInBackground &&
+        nextState === 'active'
+      ) {
+        setHasEnteredApp(false);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isAppPasscodeEnabled, session]);
+
+  if (!isLaunchReady) {
     return null;
   }
+
+  const shouldRenderNavigation =
+    !session ||
+    !isAppPasscodeEnabled ||
+    hasEnteredApp;
 
   return (
     <View style={[styles.appContainer, { backgroundColor: colors.statusBarBackground }]}>
@@ -56,9 +130,18 @@ const AppContent = () => {
         }
         translucent={false}
       />
-      <NavigationContainer theme={navigationTheme}>
-        {session ? <LoggedInNavigator /> : <LoginScreen />}
-      </NavigationContainer>
+      {shouldRenderNavigation ? (
+        <NavigationContainer theme={navigationTheme}>
+          {session ? <LoggedInNavigator /> : <LoginScreen />}
+        </NavigationContainer>
+      ) : null}
+      <AppPasscodeGate
+        visible={Boolean(session) && isAppPasscodeEnabled && !hasEnteredApp}
+        onVerify={verify}
+        onUnlock={() => {
+          setHasEnteredApp(true);
+        }}
+      />
     </View>
   );
 };

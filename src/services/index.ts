@@ -1,5 +1,6 @@
 export { apiRequest } from './apiClient';
 export {
+  changeCurrentUserPassword,
   getCurrentAuthUserId,
   getCurrentUserId,
   getLastSyncedUserId,
@@ -10,5 +11,6 @@ export {
   requireCurrentAuthUserId,
   requireCurrentUserId,
   setLastSyncedUserId,
+  verifyCurrentUserPassword,
 } from './authService';
 export { supabase } from './supabase';

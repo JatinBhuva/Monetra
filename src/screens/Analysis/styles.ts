@@ -7,9 +7,12 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  headerWrap: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.s18,
+  },
+  content: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
   },
   headerTitle: {

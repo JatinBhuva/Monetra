@@ -7,9 +7,12 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  headerWrap: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.s18,
+  },
+  content: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
   },
   headerRow: {
@@ -236,53 +239,6 @@ export const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   transactionList: {
     gap: spacing.s16,
-  },
-  transactionCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 22,
-    paddingVertical: spacing.s16,
-    paddingHorizontal: spacing.s16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 1,
-  },
-  transactionIconBox: {
-    width: 54,
-    height: 54,
-    borderRadius: 14,
-    backgroundColor: colors.backgroundSubtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.s14,
-  },
-  transactionIcon: {
-    fontSize: 24,
-  },
-  transactionContent: {
-    flex: 1,
-    paddingRight: spacing.s12,
-  },
-  transactionTitle: {
-    fontSize: 16,
-    fontWeight: typography.weight.semiBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.s4,
-  },
-  transactionMeta: {
-    fontSize: typography.size.sm,
-    color: colors.muted,
-  },
-  transactionAmount: {
-    fontSize: 16,
-    fontWeight: typography.weight.bold,
-    color: colors.textPrimary,
-  },
-  transactionAmountPositive: {
-    color: colors.primary,
   },
   fullScreenLoader: {
     paddingVertical: spacing.xl,

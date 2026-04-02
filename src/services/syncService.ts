@@ -166,6 +166,18 @@ const upsertRemoteTransaction = async (
   }
 };
 
+const deleteRemoteTransaction = async (authUserId: string, id: string) => {
+  const { error } = await supabase
+    .from('app_transactions')
+    .delete()
+    .eq('owner_id', authUserId)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 const upsertRemoteCategory = async (authUserId: string, category: Category) => {
   const { error } = await supabase
     .from('app_categories')
@@ -224,6 +236,18 @@ const upsertRemoteInvestment = async (
   }
 };
 
+const deleteRemoteInvestment = async (authUserId: string, id: string) => {
+  const { error } = await supabase
+    .from('app_investments')
+    .delete()
+    .eq('owner_id', authUserId)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 const applyQueuedSyncItem = async (
   authUserId: string,
   item: SyncQueueItem,
@@ -232,6 +256,11 @@ const applyQueuedSyncItem = async (
 
   if (item.entityType === 'transaction' && item.operation === 'upsert') {
     await upsertRemoteTransaction(authUserId, payload as Transaction);
+    return;
+  }
+
+  if (item.entityType === 'transaction' && item.operation === 'delete') {
+    await deleteRemoteTransaction(authUserId, payload.id as string);
     return;
   }
 
@@ -256,6 +285,11 @@ const applyQueuedSyncItem = async (
 
   if (item.entityType === 'investment' && item.operation === 'upsert') {
     await upsertRemoteInvestment(authUserId, payload as Investment);
+    return;
+  }
+
+  if (item.entityType === 'investment' && item.operation === 'delete') {
+    await deleteRemoteInvestment(authUserId, payload.id as string);
   }
 };
 
@@ -590,6 +624,26 @@ export const syncTransactionToRemote = async (transaction: Transaction) => {
   );
 };
 
+export const syncTransactionDeleteToRemote = async (id: string) => {
+  const queueKey = `transaction:${id}`;
+
+  await tryRemoteWrite(
+    async () => {
+      const authUserId = await requireCurrentAuthUserId();
+      await deleteRemoteTransaction(authUserId, id);
+      await removeSyncItem(queueKey);
+    },
+    () =>
+      enqueueSyncItem({
+        queueKey,
+        entityType: 'transaction',
+        entityId: id,
+        operation: 'delete',
+        payload: { id },
+      }),
+  );
+};
+
 export const syncCategoryUpsertToRemote = async (category: Category) => {
   const queueKey = `category:${category.id}`;
 
@@ -666,6 +720,26 @@ export const syncInvestmentUpsertToRemote = async (investment: Investment) => {
         entityId: investment.id,
         operation: 'upsert',
         payload: investment,
+      }),
+  );
+};
+
+export const syncInvestmentDeleteToRemote = async (id: string) => {
+  const queueKey = `investment:${id}`;
+
+  await tryRemoteWrite(
+    async () => {
+      const authUserId = await requireCurrentAuthUserId();
+      await deleteRemoteInvestment(authUserId, id);
+      await removeSyncItem(queueKey);
+    },
+    () =>
+      enqueueSyncItem({
+        queueKey,
+        entityType: 'investment',
+        entityId: id,
+        operation: 'delete',
+        payload: { id },
       }),
   );
 };

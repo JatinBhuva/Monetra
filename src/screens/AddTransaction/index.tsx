@@ -11,7 +11,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CustomInput, DateInput, PrimaryActionButton } from '../../components';
+import { useCurrencyPreference } from '../../hooks/useCurrencyPreference';
 import type { Category } from '../../types/categories';
+import type { Transaction } from '../../types/transactions';
 import { useAppTheme, useThemedStyles } from '../../theme';
 import { resolveCategoryLabel } from '../../utils/categoryLabel';
 import { strings } from '../../utils/strings';
@@ -22,6 +24,7 @@ type AddTransactionProps = {
   onClose?: () => void;
   accentColor?: string;
   initialType: 'expense' | 'income';
+  existingTransaction?: Transaction;
 };
 
 const FEATURED_ORDER = {
@@ -64,13 +67,16 @@ const AddTransactionScreen = ({
   onClose,
   accentColor,
   initialType,
+  existingTransaction,
 }: AddTransactionProps) => {
   const styles = useThemedStyles(createStyles);
   const { colors } = useAppTheme();
+  const { currencySymbol } = useCurrencyPreference();
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [categoryName, setCategoryName] = useState('');
   const [categoryEmoji, setCategoryEmoji] = useState('✨');
   const {
+    isEditing,
     activeType,
     focusedField,
     setFocusedField,
@@ -98,6 +104,7 @@ const AddTransactionScreen = ({
   } = useAddTransaction({
     dateLocale: strings.transactions.dateLocale,
     initialType,
+    existingTransaction,
     onClose,
   });
   const accent =
@@ -162,7 +169,9 @@ const AddTransactionScreen = ({
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.screen}>
       <View style={styles.headerRow}>
-        <Text style={styles.headerTitle}>{strings.transactions.title}</Text>
+        <Text style={styles.headerTitle}>
+          {isEditing ? strings.transactions.editTitle : strings.transactions.title}
+        </Text>
         <Pressable style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeIcon}>{strings.transactions.closeIcon}</Text>
         </Pressable>
@@ -178,7 +187,7 @@ const AddTransactionScreen = ({
             onChangeText={setAmount}
             placeholder={strings.transactions.amountPlaceholder}
             keyboardType="numeric"
-            leadingText={strings.transactions.currencySymbol}
+            leadingText={currencySymbol}
             isFocused={focusedField === 'amount'}
             onFocus={() => setFocusedField('amount')}
             onBlur={() => {
@@ -311,9 +320,11 @@ const AddTransactionScreen = ({
       <View style={styles.footer}>
         <PrimaryActionButton
           label={
-            activeType === 'expense'
-              ? strings.transactions.addExpense
-              : strings.transactions.addIncome
+            isEditing
+              ? strings.transactions.saveChanges
+              : activeType === 'expense'
+                ? strings.transactions.addExpense
+                : strings.transactions.addIncome
           }
           backgroundColor={accent}
           style={styles.submitButton}

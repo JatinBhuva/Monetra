@@ -1,12 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CustomInput, ScreenHeader, TransactionRow } from '../../components';
 import { assets } from '../../assets';
 import { transactionRepository } from '../../data/repositories/transactionRepository';
+import { useCurrencyPreference } from '../../hooks/useCurrencyPreference';
+import type { LoggedInStackParamList } from '../../types';
 import type { Transaction } from '../../types/transactions';
 import { useThemedStyles } from '../../theme';
+import { ScreenConstants } from '../../utils/constants';
 import { strings } from '../../utils/strings';
 import { createStyles } from './styles';
 
@@ -69,6 +74,9 @@ const MonthTransactionsScreen = ({
   onBack,
 }: MonthTransactionsScreenProps) => {
   const styles = useThemedStyles(createStyles);
+  const { currencySymbol } = useCurrencyPreference();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<LoggedInStackParamList>>();
   const [items, setItems] = useState<Transaction[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [searchValue, setSearchValue] = useState('');
@@ -150,7 +158,7 @@ const MonthTransactionsScreen = ({
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.monthDetailBack} onPress={onBack}>
-          ‹ Back
+          ‹ {strings.transactionsScreen.backButton}
         </Text>
 
         <CustomInput
@@ -187,7 +195,7 @@ const MonthTransactionsScreen = ({
                   </Text>
                 </View>
                 <Text style={styles.monthBreakdownAmount}>
-                  {strings.transactions.currencySymbol}
+                  {currencySymbol}
                   {formatAmount(item.amount)}
                 </Text>
               </View>
@@ -219,18 +227,26 @@ const MonthTransactionsScreen = ({
         ) : (
           filteredItems.map(transaction => {
             const sign = transaction.type === 'expense' ? '-' : '+';
-            const amountLabel = `${sign}${strings.transactions.currencySymbol}${formatAmount(
+            const amountLabel = `${sign}${currencySymbol}${formatAmount(
               transaction.amount,
             )}`;
 
             return (
               <View key={transaction.id} style={styles.monthDetailRowWrapper}>
-                <TransactionRow
-                  transaction={transaction}
-                  amountLabel={amountLabel}
-                  amountTone={transaction.type}
-                  topRightLabel={formatDateLabel(transaction.date)}
-                />
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate(ScreenConstants.TRANSACTION_DETAIL_SCREEN, {
+                      transaction,
+                    })
+                  }
+                >
+                  <TransactionRow
+                    transaction={transaction}
+                    amountLabel={amountLabel}
+                    amountTone={transaction.type}
+                    topRightLabel={formatDateLabel(transaction.date)}
+                  />
+                </Pressable>
               </View>
             );
           })

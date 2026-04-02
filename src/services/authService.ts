@@ -9,6 +9,14 @@ const AUTH_EMAIL_DOMAIN = 'monetra.app';
 export type AuthSession = {
   authUserId: string;
   userId: string;
+  email: string | null;
+};
+
+export type AuthUserProfile = {
+  fullName: string | null;
+  email: string | null;
+  phone: string | null;
+  createdAt: string | null;
 };
 
 const INVALID_CREDENTIALS_MESSAGE = 'Invalid user ID or password.';
@@ -33,6 +41,7 @@ export const getStoredSession = async (): Promise<AuthSession | null> => {
   return {
     authUserId: session.user.id,
     userId: fromAuthEmail(session.user.email) ?? session.user.id,
+    email: session.user.email ?? null,
   };
 };
 
@@ -62,11 +71,108 @@ export const loginWithUserIdAndPassword = async (
   return {
     authUserId: data.user.id,
     userId: normalizedUserId,
+    email: data.user.email ?? toAuthEmail(normalizedUserId),
   };
 };
 
 export const logoutUser = async () => {
   await supabase.auth.signOut();
+};
+
+export const changeCurrentUserPassword = async (nextPassword: string) => {
+  const normalizedPassword = nextPassword.trim();
+
+  if (!normalizedPassword) {
+    throw new Error('Password is required.');
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: normalizedPassword,
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Unable to update password right now.');
+  }
+};
+
+export const getCurrentAuthUserProfile = async (): Promise<AuthUserProfile> => {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    throw new Error(error?.message || 'Unable to load user profile.');
+  }
+
+  const metadata = user.user_metadata ?? {};
+
+  return {
+    fullName:
+      typeof metadata.full_name === 'string' ? metadata.full_name.trim() : null,
+    email:
+      (typeof metadata.contact_email === 'string'
+        ? metadata.contact_email.trim()
+        : '') ||
+      user.email ||
+      null,
+    phone: typeof metadata.phone === 'string' ? metadata.phone.trim() : null,
+    createdAt: user.created_at ?? null,
+  };
+};
+
+export const updateCurrentAuthUserProfile = async (payload: {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+}) => {
+  const nextMetadata: Record<string, string | null> = {};
+
+  if (payload.fullName !== undefined) {
+    nextMetadata.full_name = payload.fullName.trim() || null;
+  }
+
+  if (payload.email !== undefined) {
+    nextMetadata.contact_email = payload.email.trim() || null;
+  }
+
+  if (payload.phone !== undefined) {
+    nextMetadata.phone = payload.phone.trim() || null;
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    data: nextMetadata,
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Unable to update profile right now.');
+  }
+};
+
+export const verifyCurrentUserPassword = async (currentPassword: string) => {
+  const normalizedPassword = currentPassword.trim();
+
+  if (!normalizedPassword) {
+    throw new Error('Current password is required.');
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user?.email) {
+    throw new Error('Unable to verify current user session.');
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: normalizedPassword,
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Current password is incorrect.');
+  }
 };
 
 export const getCurrentUserId = async () => {
@@ -118,5 +224,6 @@ export const listenToAuthSession = (
     listener({
       authUserId: session.user.id,
       userId: fromAuthEmail(session.user.email) ?? session.user.id,
+      email: session.user.email ?? null,
     });
   });

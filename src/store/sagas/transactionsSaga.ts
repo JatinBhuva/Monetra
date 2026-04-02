@@ -10,6 +10,12 @@ import {
   addTransactionFailed,
   addTransactionRequested,
   addTransactionSucceeded,
+  updateTransactionFailed,
+  updateTransactionRequested,
+  updateTransactionSucceeded,
+  deleteTransactionFailed,
+  deleteTransactionRequested,
+  deleteTransactionSucceeded,
   loadTransactionsFailed,
   loadTransactionsRequested,
   loadTransactionsSucceeded,
@@ -70,6 +76,38 @@ function* handleLoadTransactions(
   }
 }
 
+function* handleUpdateTransaction(action: { payload: Transaction }) {
+  try {
+    yield call([transactionRepository, transactionRepository.update], action.payload);
+    yield put(updateTransactionSucceeded(action.payload));
+    yield put(loadTransactionsRequested({ refresh: true }));
+    yield put(loadMonthlyStatsRequested());
+    yield put(loadAnalyticsRequested());
+  } catch (error) {
+    yield put(
+      updateTransactionFailed(
+        error instanceof Error ? error.message : 'Unknown error',
+      ),
+    );
+  }
+}
+
+function* handleDeleteTransaction(action: { payload: string }) {
+  try {
+    yield call([transactionRepository, transactionRepository.remove], action.payload);
+    yield put(deleteTransactionSucceeded(action.payload));
+    yield put(loadTransactionsRequested({ refresh: true }));
+    yield put(loadMonthlyStatsRequested());
+    yield put(loadAnalyticsRequested());
+  } catch (error) {
+    yield put(
+      deleteTransactionFailed(
+        error instanceof Error ? error.message : 'Unknown error',
+      ),
+    );
+  }
+}
+
 function* handleLoadMonthlyStats() {
   try {
     const now = new Date();
@@ -102,6 +140,8 @@ function* handleLoadMonthlyStats() {
 
 export function* transactionsSaga() {
   yield takeLatest(addTransactionRequested.type, handleAddTransaction);
+  yield takeLatest(updateTransactionRequested.type, handleUpdateTransaction);
+  yield takeLatest(deleteTransactionRequested.type, handleDeleteTransaction);
   yield takeLatest(loadTransactionsRequested.type, handleLoadTransactions);
   yield takeLatest(loadMonthlyStatsRequested.type, handleLoadMonthlyStats);
 }

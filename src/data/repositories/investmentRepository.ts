@@ -3,6 +3,8 @@ import { LocalInvestmentRepository } from './investmentRepository.local';
 
 export type InvestmentRepository = {
   create: (investment: Investment) => Promise<void>;
+  update: (investment: Investment) => Promise<void>;
+  remove: (id: string) => Promise<void>;
   listAll: () => Promise<Investment[]>;
   listByDateRange: (params: {
     startDate: string;

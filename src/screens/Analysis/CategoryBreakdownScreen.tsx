@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useThemedStyles } from '../../theme';
+import { useCurrencyPreference } from '../../hooks/useCurrencyPreference';
 import { strings } from '../../utils/strings';
 import { createStyles } from './styles';
 
@@ -20,16 +21,13 @@ type CategoryBreakdownScreenProps = {
   onBack: () => void;
 };
 
-const formatCurrency = (amount: number) =>
-  `${strings.transactions.currencySymbol}${amount.toLocaleString(
-    strings.transactions.dateLocale,
-    {
-      maximumFractionDigits: 0,
-    },
-  )}`;
-
 const CategoryBreakdownScreen = ({ items, onBack }: CategoryBreakdownScreenProps) => {
   const styles = useThemedStyles(createStyles);
+  const { currencySymbol } = useCurrencyPreference();
+  const formatCurrency = (amount: number) =>
+    `${currencySymbol}${amount.toLocaleString(strings.transactions.dateLocale, {
+      maximumFractionDigits: 0,
+    })}`;
   return (
     <SafeAreaView edges={['top']} style={styles.breakdownScreen}>
       <View style={styles.breakdownHeader}>

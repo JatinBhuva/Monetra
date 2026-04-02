@@ -11,7 +11,9 @@ type TransactionRowProps = {
   amountLabel?: string;
   amountTone?: 'expense' | 'income';
   topRightLabel?: string;
-  variant?: 'default' | 'compact';
+  titleOverride?: string;
+  subtitleOverride?: string;
+  variant?: 'default' | 'compact' | 'dashboard';
 };
 
 const TransactionRow = ({
@@ -19,27 +21,45 @@ const TransactionRow = ({
   amountLabel,
   amountTone,
   topRightLabel,
+  titleOverride,
+  subtitleOverride,
   variant = 'default',
 }: TransactionRowProps) => {
   const styles = useThemedStyles(createStyles);
   const isCompact = variant === 'compact';
-  const description = transaction.description.trim();
+  const isDashboard = variant === 'dashboard';
+  const description = (titleOverride ?? transaction.description).trim();
   const hasDescription = description.length > 0;
-  const categoryName =
-    transaction.category?.name ?? strings.transactionsScreen.uncategorized;
+  const categoryName = subtitleOverride
+    ? subtitleOverride
+    : transaction.category?.name ?? strings.transactionsScreen.uncategorized;
   const categoryEmoji = transaction.category?.emoji ?? '•';
 
   const amountStyle =
     amountTone === 'expense'
       ? styles.amountExpense
       : amountTone === 'income'
-        ? styles.amountIncome
+        ? isDashboard
+          ? styles.amountIncomeDashboard
+          : styles.amountIncome
         : undefined;
 
   return (
-    <View style={[styles.row, isCompact && styles.rowCompact]}>
-      <View style={[styles.iconCircle, isCompact && styles.iconCircleCompact]}>
-        <Text style={[styles.iconText, isCompact && styles.iconTextCompact]}>
+    <View style={[styles.row, isCompact && styles.rowCompact, isDashboard && styles.rowDashboard]}>
+      <View
+        style={[
+          styles.iconCircle,
+          isCompact && styles.iconCircleCompact,
+          isDashboard && styles.iconCircleDashboard,
+        ]}
+      >
+        <Text
+          style={[
+            styles.iconText,
+            isCompact && styles.iconTextCompact,
+            isDashboard && styles.iconTextDashboard,
+          ]}
+        >
           {categoryEmoji}
         </Text>
       </View>
@@ -52,13 +72,21 @@ const TransactionRow = ({
         {hasDescription ? (
           <>
             <Text
-              style={[styles.title, isCompact && styles.titleCompact]}
+              style={[
+                styles.title,
+                isCompact && styles.titleCompact,
+                isDashboard && styles.titleDashboard,
+              ]}
               numberOfLines={1}
             >
               {description}
             </Text>
             <Text
-              style={[styles.subtitle, isCompact && styles.subtitleCompact]}
+              style={[
+                styles.subtitle,
+                isCompact && styles.subtitleCompact,
+                isDashboard && styles.subtitleDashboard,
+              ]}
               numberOfLines={1}
             >
               {categoryName}
@@ -85,7 +113,10 @@ const TransactionRow = ({
             </Text>
           ) : null}
           {amountLabel ? (
-            <Text style={[styles.amount, amountStyle]} numberOfLines={1}>
+            <Text
+              style={[styles.amount, isDashboard && styles.amountDashboard, amountStyle]}
+              numberOfLines={1}
+            >
               {amountLabel}
             </Text>
           ) : null}
