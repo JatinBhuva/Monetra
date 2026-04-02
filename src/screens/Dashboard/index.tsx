@@ -7,17 +7,20 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { assets } from '../../assets';
-import { ScreenHeader } from '../../components';
+import { ScreenHeader, TransactionRow } from '../../components';
 import { resolveCategoryLabel } from '../../utils/categoryLabel';
 import { useDashboard } from './Dashboard.hook';
 import { strings } from '../../utils/strings';
 import { spacing, useThemedStyles } from '../../theme';
 import { useTabBarSpacing } from '../../hooks/useTabBarSpacing';
+import { useCurrencyPreference } from '../../hooks/useCurrencyPreference';
 import { ScreenConstants } from '../../utils/constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createStyles } from './styles';
+import type { LoggedInStackParamList } from '../../types';
 
 const DashboardIcon = assets.icons.dashboard;
 
@@ -51,12 +54,14 @@ const formatRelativeDate = (value: string) => {
 
 const DashboardScreen = () => {
   const styles = useThemedStyles(createStyles);
-  const navigation = useNavigation();
+  const { currencySymbol } = useCurrencyPreference();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<LoggedInStackParamList>>();
   const {
     status,
     monthStatsStatus,
     monthExpenseTotal,
-    monthIncomeTotal,
+    monthInvestmentTotal,
     monthTransactionCount,
     recentTransactions,
     monthLabel,
@@ -73,12 +78,18 @@ const DashboardScreen = () => {
     [monthExpenseTotal],
   );
   const investmentTeaserAmount = useMemo(
-    () => formatAmount(monthIncomeTotal),
-    [monthIncomeTotal],
+    () => formatAmount(monthInvestmentTotal),
+    [monthInvestmentTotal],
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={['top']} style={styles.container}>
+      <View style={styles.headerWrap}>
+        <ScreenHeader
+          title={strings.dashboardScreen.title}
+          icon={DashboardIcon}
+        />
+      </View>
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -86,11 +97,6 @@ const DashboardScreen = () => {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader
-          title={strings.dashboardScreen.title}
-          icon={DashboardIcon}
-        />
-
         <View style={styles.summaryGrid}>
           <View style={[styles.summaryTile, styles.summaryTilePrimary]}>
             <View style={styles.summaryTileTop}>
@@ -106,7 +112,7 @@ const DashboardScreen = () => {
               <ActivityIndicator size="small" color={styles.sectionTitle.color} />
             ) : (
               <Text style={styles.summaryTileAmount}>
-                {strings.transactions.currencySymbol}
+                {currencySymbol}
                 {spendingAmount}
               </Text>
             )}
@@ -118,27 +124,33 @@ const DashboardScreen = () => {
             </View>
           </View>
 
-          <View style={[styles.summaryTile, styles.summaryTileSecondary]}>
+          <Pressable
+            onPress={() => navigation.navigate(ScreenConstants.INVESTMENTS_SCREEN)}
+            style={[styles.summaryTile, styles.summaryTileSecondary]}
+          >
             <View style={styles.summaryTileTop}>
-              <Text style={styles.summaryTileEyebrow}>Invest</Text>
+              <Text style={[styles.summaryTileEyebrow, styles.summaryTileEyebrowSecondary]}>
+                Invest
+              </Text>
               <View style={[styles.summaryBadge, styles.summaryBadgeDark]}>
-                <Text style={styles.summaryBadgeTextDark}>Soon</Text>
+                <Text style={styles.summaryBadgeTextDark}>{monthLabel}</Text>
               </View>
             </View>
-            <Text style={styles.summaryTileTitle}>
+            <Text style={[styles.summaryTileTitle, styles.summaryTileTitleSecondary]}>
               {strings.dashboardScreen.investmentTitle}
             </Text>
             <Text
               style={[
                 styles.summaryTileAmount,
                 styles.summaryTileAmountPositive,
+                styles.summaryTileAmountSecondary,
               ]}
             >
-              {strings.transactions.currencySymbol}
+              {currencySymbol}
               {investmentTeaserAmount}
             </Text>
-            <Text style={styles.summaryTileCaption}>
-              Investment tracking layer not enabled yet
+            <Text style={[styles.summaryTileCaption, styles.summaryTileCaptionSecondary]}>
+              Investment entries tracked this month
             </Text>
             <View
               style={[
@@ -146,9 +158,9 @@ const DashboardScreen = () => {
                 styles.summaryTileIconWrapDark,
               ]}
             >
-              <Text style={styles.summaryTileIcon}>◎</Text>
+              <Text style={[styles.summaryTileIcon, styles.summaryTileIconSecondary]}>◎</Text>
             </View>
-          </View>
+          </Pressable>
         </View>
 
         <View style={styles.sectionHeader}>
@@ -185,46 +197,30 @@ const DashboardScreen = () => {
                 strings.dashboardScreen.untitledTransaction;
               const amountLabel = `${
                 transaction.type === 'expense' ? '-' : '+'
-              } ${strings.transactions.currencySymbol}${formatAmount(
+              } ${currencySymbol}${formatAmount(
                 Number(transaction.amount),
               )}`;
+              const metaLabel = `${resolveCategoryLabel({
+                ...(transaction.category ?? {
+                  id: 'uncategorized',
+                  type: transaction.type,
+                  name: categoryName,
+                  emoji: '•',
+                  isDefault: false,
+                  createdAt: '',
+                }),
+              }).toUpperCase()} • ${formatRelativeDate(transaction.date)}`;
 
               return (
-                <View key={transaction.id} style={styles.transactionCard}>
-                  <View style={styles.transactionIconBox}>
-                    <Text style={styles.transactionIcon}>
-                      {transaction.category?.emoji ?? '•'}
-                    </Text>
-                  </View>
-                  <View style={styles.transactionContent}>
-                    <Text style={styles.transactionTitle} numberOfLines={1}>
-                      {title}
-                    </Text>
-                    <Text style={styles.transactionMeta} numberOfLines={1}>
-                      {resolveCategoryLabel({
-                        ...(transaction.category ?? {
-                          id: 'uncategorized',
-                          type: transaction.type,
-                          name: categoryName,
-                          emoji: '•',
-                          isDefault: false,
-                          createdAt: '',
-                        }),
-                      }).toUpperCase()}{' '}
-                      • {formatRelativeDate(transaction.date)}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.transactionAmount,
-                      transaction.type === 'income'
-                        ? styles.transactionAmountPositive
-                        : null,
-                    ]}
-                  >
-                    {amountLabel}
-                  </Text>
-                </View>
+                <TransactionRow
+                  key={transaction.id}
+                  transaction={transaction}
+                  titleOverride={title}
+                  subtitleOverride={metaLabel}
+                  amountLabel={amountLabel}
+                  amountTone={transaction.type}
+                  variant="dashboard"
+                />
               );
             })}
           </View>
@@ -246,7 +242,10 @@ const DashboardScreen = () => {
           <Text style={styles.insightBody}>
             {strings.dashboardScreen.insightBody}
           </Text>
-          <Pressable style={styles.insightButton}>
+          <Pressable
+            style={styles.insightButton}
+            onPress={() => navigation.navigate(ScreenConstants.ADD_INVESTMENT_SCREEN)}
+          >
             <Text style={styles.insightButtonText}>
               {strings.dashboardScreen.insightAction}
             </Text>

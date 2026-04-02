@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Platform } from 'react-native';
 
 import type { Category } from '../../types/categories';
-import type { TransactionType } from '../../types/transactions';
+import type { Transaction, TransactionType } from '../../types/transactions';
 import {
   addTransactionRequested,
+  updateTransactionRequested,
   addCategoryRequested,
   loadCategoriesRequested,
   showPopup,
@@ -16,29 +17,48 @@ import { preferencesRepository } from '../../data/repositories/preferencesReposi
 type UseAddTransactionProps = {
   dateLocale: string;
   initialType: TransactionType;
+  existingTransaction?: Transaction;
   onClose?: () => void;
 };
 
 export const useAddTransaction = ({
   dateLocale,
   initialType,
+  existingTransaction,
   onClose,
 }: UseAddTransactionProps) => {
-  const [activeType] = useState<TransactionType>(initialType);
+  const isEditing = Boolean(existingTransaction);
+  const [activeType] = useState<TransactionType>(
+    existingTransaction?.type ?? initialType,
+  );
   const [focusedField, setFocusedField] = useState<null | string>(null);
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [amount, setAmount] = useState(existingTransaction?.amount ?? '');
+  const [description, setDescription] = useState(
+    existingTransaction?.description ?? '',
+  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    existingTransaction?.categoryId ?? null,
+  );
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (existingTransaction?.date) {
+      const parsed = new Date(existingTransaction.date);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+    return new Date();
+  });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const dispatch = useAppDispatch();
   const isSaving = useAppSelector(state => state.transactions.status === 'loading');
   const lastCreatedId = useAppSelector(state => state.transactions.lastCreatedId);
+  const lastUpdatedId = useAppSelector(state => state.transactions.lastUpdatedId);
   const saveError = useAppSelector(state => state.transactions.error);
   const saveStatus = useAppSelector(state => state.transactions.status);
   const categories = useAppSelector(state => state.categories.items);
   const [localCategories, setLocalCategories] = useState<Category[]>([]);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [submittedMode, setSubmittedMode] = useState<'create' | 'update' | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [touchedAmount, setTouchedAmount] = useState(false);
   const [touchedCategory, setTouchedCategory] = useState(false);
@@ -85,7 +105,7 @@ export const useAddTransaction = ({
 
     const category = mergedCategories.find(item => item.id === selectedCategory);
     const transaction = {
-      id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
+      id: existingTransaction?.id ?? `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
       type: activeType,
       amount: amount.trim(),
       description: description.trim(),
@@ -95,6 +115,13 @@ export const useAddTransaction = ({
     };
 
     setSubmittedId(transaction.id);
+    if (isEditing) {
+      setSubmittedMode('update');
+      dispatch(updateTransactionRequested(transaction));
+      return;
+    }
+
+    setSubmittedMode('create');
     dispatch(addTransactionRequested(transaction));
   };
 
@@ -143,6 +170,10 @@ export const useAddTransaction = ({
   }, []);
 
   useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+
     if (!pendingCategoryId || mergedCategories.length === 0) {
       return;
     }
@@ -155,17 +186,28 @@ export const useAddTransaction = ({
       setSelectedCategory(match.id);
     }
     setPendingCategoryId(null);
-  }, [activeType, mergedCategories, pendingCategoryId]);
+  }, [activeType, isEditing, mergedCategories, pendingCategoryId]);
 
   useEffect(() => {
-    if (!submittedId || submittedId !== lastCreatedId) {
+    const isCreateSuccess =
+      submittedMode === 'create' && submittedId && submittedId === lastCreatedId;
+    const isUpdateSuccess =
+      submittedMode === 'update' && submittedId && submittedId === lastUpdatedId;
+
+    if (!isCreateSuccess && !isUpdateSuccess) {
       return;
     }
 
     dispatch(
       showPopup({
-        title: strings.popup.transactionAddedTitle,
-        message: strings.popup.transactionAddedMessage,
+        title:
+          submittedMode === 'update'
+            ? strings.popup.transactionUpdatedTitle
+            : strings.popup.transactionAddedTitle,
+        message:
+          submittedMode === 'update'
+            ? strings.popup.transactionUpdatedMessage
+            : strings.popup.transactionAddedMessage,
         buttonLabel: strings.popup.okButton,
       }),
     );
@@ -173,24 +215,30 @@ export const useAddTransaction = ({
     if (selectedCategory) {
       preferencesRepository.set('lastCategoryId', selectedCategory);
     }
-    setAmount('');
-    setDescription('');
-    setSelectedCategory(null);
-    setSelectedDate(new Date());
-    setFocusedField(null);
-    setSubmitAttempted(false);
-    setTouchedAmount(false);
-    setTouchedCategory(false);
+    if (!isEditing) {
+      setAmount('');
+      setDescription('');
+      setSelectedCategory(null);
+      setSelectedDate(new Date());
+      setFocusedField(null);
+      setSubmitAttempted(false);
+      setTouchedAmount(false);
+      setTouchedCategory(false);
+    }
     if (onClose) {
       onClose();
     }
     setSubmittedId(null);
+    setSubmittedMode(null);
   }, [
     activeType,
     dispatch,
+    isEditing,
     lastCreatedId,
+    lastUpdatedId,
     onClose,
     selectedCategory,
+    submittedMode,
     submittedId,
   ]);
 
@@ -246,6 +294,7 @@ export const useAddTransaction = ({
   };
 
   return {
+    isEditing,
     activeType,
     focusedField,
     setFocusedField,

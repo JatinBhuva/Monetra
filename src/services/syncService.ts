@@ -1,5 +1,6 @@
 import { getDb, resetDatabase } from '../data/db/sqlite';
 import type { Category } from '../types/categories';
+import type { Investment } from '../types/investments';
 import type { Transaction } from '../types/transactions';
 import { categorySeeds } from '../utils/categorySeeds';
 import {
@@ -37,7 +38,19 @@ type RemotePreferenceRow = {
   value: string;
 };
 
-type SyncEntityType = 'transaction' | 'category' | 'preference';
+type RemoteInvestmentRow = {
+  owner_id: string;
+  id: string;
+  type: Investment['type'];
+  amount: string;
+  date: string;
+  policy_number: string | null;
+  policy_start_date: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+type SyncEntityType = 'transaction' | 'category' | 'preference' | 'investment';
 type SyncOperation = 'upsert' | 'delete';
 
 type SyncQueueItem = {
@@ -77,6 +90,21 @@ const buildTransactionRow = (
   category_id: transaction.categoryId,
   date: transaction.date,
   category_json: transaction.category ? JSON.stringify(transaction.category) : null,
+});
+
+const buildInvestmentRow = (
+  authUserId: string,
+  investment: Investment,
+): RemoteInvestmentRow => ({
+  owner_id: authUserId,
+  id: investment.id,
+  type: investment.type,
+  amount: investment.amount,
+  date: investment.date,
+  policy_number: investment.policyNumber ?? null,
+  policy_start_date: investment.policyStartDate ?? null,
+  note: investment.note?.trim() || null,
+  created_at: investment.createdAt,
 });
 
 const enqueueSyncItem = async (item: {
@@ -138,6 +166,18 @@ const upsertRemoteTransaction = async (
   }
 };
 
+const deleteRemoteTransaction = async (authUserId: string, id: string) => {
+  const { error } = await supabase
+    .from('app_transactions')
+    .delete()
+    .eq('owner_id', authUserId)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 const upsertRemoteCategory = async (authUserId: string, category: Category) => {
   const { error } = await supabase
     .from('app_categories')
@@ -181,6 +221,33 @@ const upsertRemotePreference = async (
   }
 };
 
+const upsertRemoteInvestment = async (
+  authUserId: string,
+  investment: Investment,
+) => {
+  const { error } = await supabase
+    .from('app_investments')
+    .upsert(buildInvestmentRow(authUserId, investment), {
+      onConflict: 'owner_id,id',
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+const deleteRemoteInvestment = async (authUserId: string, id: string) => {
+  const { error } = await supabase
+    .from('app_investments')
+    .delete()
+    .eq('owner_id', authUserId)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 const applyQueuedSyncItem = async (
   authUserId: string,
   item: SyncQueueItem,
@@ -189,6 +256,11 @@ const applyQueuedSyncItem = async (
 
   if (item.entityType === 'transaction' && item.operation === 'upsert') {
     await upsertRemoteTransaction(authUserId, payload as Transaction);
+    return;
+  }
+
+  if (item.entityType === 'transaction' && item.operation === 'delete') {
+    await deleteRemoteTransaction(authUserId, payload.id as string);
     return;
   }
 
@@ -208,6 +280,16 @@ const applyQueuedSyncItem = async (
       payload.key as string,
       payload.value as string,
     );
+    return;
+  }
+
+  if (item.entityType === 'investment' && item.operation === 'upsert') {
+    await upsertRemoteInvestment(authUserId, payload as Investment);
+    return;
+  }
+
+  if (item.entityType === 'investment' && item.operation === 'delete') {
+    await deleteRemoteInvestment(authUserId, payload.id as string);
   }
 };
 
@@ -261,6 +343,24 @@ const pushLocalSnapshotToRemote = async (authUserId: string) => {
     });
   }
 
+  const [investmentsResult] = await db.executeSql(
+    'SELECT id, type, amount, date, policyNumber, policyStartDate, note, createdAt FROM investments;',
+  );
+  const investments: Investment[] = [];
+  for (let i = 0; i < investmentsResult.rows.length; i += 1) {
+    const row = investmentsResult.rows.item(i);
+    investments.push({
+      id: row.id,
+      type: row.type,
+      amount: row.amount,
+      date: row.date,
+      policyNumber: row.policyNumber,
+      policyStartDate: row.policyStartDate,
+      note: row.note,
+      createdAt: row.createdAt,
+    });
+  }
+
   if (categories.length > 0) {
     const { error } = await supabase
       .from('app_categories')
@@ -294,6 +394,18 @@ const pushLocalSnapshotToRemote = async (authUserId: string) => {
       throw new Error(error.message);
     }
   }
+
+  if (investments.length > 0) {
+    const { error } = await supabase
+      .from('app_investments')
+      .upsert(investments.map(item => buildInvestmentRow(authUserId, item)), {
+        onConflict: 'owner_id,id',
+      });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
 };
 
 const fetchRemoteSnapshot = async (authUserId: string) => {
@@ -301,6 +413,7 @@ const fetchRemoteSnapshot = async (authUserId: string) => {
     { data: categories, error: categoriesError },
     { data: transactions, error: transactionsError },
     { data: preferences, error: preferencesError },
+    { data: investments, error: investmentsError },
   ] = await Promise.all([
     supabase
       .from('app_categories')
@@ -313,6 +426,11 @@ const fetchRemoteSnapshot = async (authUserId: string) => {
       .eq('owner_id', authUserId)
       .order('date', { ascending: false }),
     supabase.from('app_preferences').select('*').eq('owner_id', authUserId),
+    supabase
+      .from('app_investments')
+      .select('*')
+      .eq('owner_id', authUserId)
+      .order('date', { ascending: false }),
   ]);
 
   if (categoriesError) {
@@ -327,10 +445,15 @@ const fetchRemoteSnapshot = async (authUserId: string) => {
     throw new Error(preferencesError.message);
   }
 
+  if (investmentsError) {
+    throw new Error(investmentsError.message);
+  }
+
   return {
     categories: (categories ?? []) as RemoteCategoryRow[],
     transactions: (transactions ?? []) as RemoteTransactionRow[],
     preferences: (preferences ?? []) as RemotePreferenceRow[],
+    investments: (investments ?? []) as RemoteInvestmentRow[],
   };
 };
 
@@ -338,9 +461,13 @@ const replaceLocalSnapshot = async (snapshot: {
   categories: RemoteCategoryRow[];
   transactions: RemoteTransactionRow[];
   preferences: RemotePreferenceRow[];
+  investments: RemoteInvestmentRow[];
 }) => {
-  await resetDatabase();
   const db = await getDb();
+  await db.executeSql('DELETE FROM categories;');
+  await db.executeSql('DELETE FROM transactions;');
+  await db.executeSql('DELETE FROM preferences;');
+  await db.executeSql('DELETE FROM investments;');
 
   for (const category of snapshot.categories) {
     await db.executeSql(
@@ -376,6 +503,24 @@ const replaceLocalSnapshot = async (snapshot: {
     await db.executeSql(
       'INSERT OR REPLACE INTO preferences (key, value) VALUES (?, ?);',
       [preference.key, preference.value],
+    );
+  }
+
+  for (const investment of snapshot.investments) {
+    await db.executeSql(
+      `INSERT OR REPLACE INTO investments
+      (id, type, amount, date, policyNumber, policyStartDate, note, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+      [
+        investment.id,
+        investment.type,
+        investment.amount,
+        investment.date,
+        investment.policy_number,
+        investment.policy_start_date,
+        investment.note,
+        investment.created_at,
+      ],
     );
   }
 };
@@ -479,6 +624,26 @@ export const syncTransactionToRemote = async (transaction: Transaction) => {
   );
 };
 
+export const syncTransactionDeleteToRemote = async (id: string) => {
+  const queueKey = `transaction:${id}`;
+
+  await tryRemoteWrite(
+    async () => {
+      const authUserId = await requireCurrentAuthUserId();
+      await deleteRemoteTransaction(authUserId, id);
+      await removeSyncItem(queueKey);
+    },
+    () =>
+      enqueueSyncItem({
+        queueKey,
+        entityType: 'transaction',
+        entityId: id,
+        operation: 'delete',
+        payload: { id },
+      }),
+  );
+};
+
 export const syncCategoryUpsertToRemote = async (category: Category) => {
   const queueKey = `category:${category.id}`;
 
@@ -535,6 +700,46 @@ export const syncPreferenceToRemote = async (key: string, value: string) => {
         entityId: key,
         operation: 'upsert',
         payload: { key, value },
+      }),
+  );
+};
+
+export const syncInvestmentUpsertToRemote = async (investment: Investment) => {
+  const queueKey = `investment:${investment.id}`;
+
+  await tryRemoteWrite(
+    async () => {
+      const authUserId = await requireCurrentAuthUserId();
+      await upsertRemoteInvestment(authUserId, investment);
+      await removeSyncItem(queueKey);
+    },
+    () =>
+      enqueueSyncItem({
+        queueKey,
+        entityType: 'investment',
+        entityId: investment.id,
+        operation: 'upsert',
+        payload: investment,
+      }),
+  );
+};
+
+export const syncInvestmentDeleteToRemote = async (id: string) => {
+  const queueKey = `investment:${id}`;
+
+  await tryRemoteWrite(
+    async () => {
+      const authUserId = await requireCurrentAuthUserId();
+      await deleteRemoteInvestment(authUserId, id);
+      await removeSyncItem(queueKey);
+    },
+    () =>
+      enqueueSyncItem({
+        queueKey,
+        entityType: 'investment',
+        entityId: id,
+        operation: 'delete',
+        payload: { id },
       }),
   );
 };

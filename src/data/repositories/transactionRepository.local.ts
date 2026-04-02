@@ -1,7 +1,10 @@
 import type { Transaction } from '../../types/transactions';
 import type { TransactionRepository } from './transactionRepository';
 import { getDb } from '../db/sqlite';
-import { syncTransactionToRemote } from '../../services/syncService';
+import {
+  syncTransactionDeleteToRemote,
+  syncTransactionToRemote,
+} from '../../services/syncService';
 
 export class LocalTransactionRepository implements TransactionRepository {
   async create(transaction: Transaction) {
@@ -19,6 +22,16 @@ export class LocalTransactionRepository implements TransactionRepository {
       ],
     );
     await syncTransactionToRemote(transaction);
+  }
+
+  async update(transaction: Transaction) {
+    await this.create(transaction);
+  }
+
+  async remove(id: string) {
+    const db = await getDb();
+    await db.executeSql('DELETE FROM transactions WHERE id = ?;', [id]);
+    await syncTransactionDeleteToRemote(id);
   }
 
   async list(params: { limit: number; offset: number }) {

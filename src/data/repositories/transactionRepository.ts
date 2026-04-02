@@ -3,6 +3,8 @@ import { LocalTransactionRepository } from './transactionRepository.local';
 
 export type TransactionRepository = {
   create: (transaction: Transaction) => Promise<void>;
+  update: (transaction: Transaction) => Promise<void>;
+  remove: (id: string) => Promise<void>;
   list: (params: { limit: number; offset: number }) => Promise<Transaction[]>;
   listByDateRange: (params: {
     startDate: string;
