@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,6 +16,7 @@ import { ThemeProvider, useAppTheme } from './theme';
 
 const AppContent = () => {
   const SPLASH_MIN_DURATION_MS = 2000;
+  const AUTO_LOCK_INACTIVITY_MS = 60 * 1000;
   const { session } = useAuth();
   const {
     isEnabled: isAppPasscodeEnabled,
@@ -27,6 +28,32 @@ const AppContent = () => {
   const [isLaunchReady, setIsLaunchReady] = useState(false);
   const [hasEnteredApp, setHasEnteredApp] = useState(false);
   const appStateRef = useRef(AppState.currentState);
+  const inactivityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearInactivityTimeout = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetInactivityTimeout = useCallback(() => {
+    clearInactivityTimeout();
+
+    if (!session || !isAppPasscodeEnabled || !hasEnteredApp) {
+      return;
+    }
+
+    inactivityTimeoutRef.current = setTimeout(() => {
+      setHasEnteredApp(false);
+    }, AUTO_LOCK_INACTIVITY_MS);
+  }, [
+    AUTO_LOCK_INACTIVITY_MS,
+    clearInactivityTimeout,
+    hasEnteredApp,
+    isAppPasscodeEnabled,
+    session,
+  ]);
   const navigationTheme = React.useMemo<NavigationTheme>(
     () => ({
       dark: isDark,
@@ -112,6 +139,14 @@ const AppContent = () => {
     };
   }, [isAppPasscodeEnabled, session]);
 
+  useEffect(() => {
+    resetInactivityTimeout();
+
+    return () => {
+      clearInactivityTimeout();
+    };
+  }, [clearInactivityTimeout, resetInactivityTimeout]);
+
   if (!isLaunchReady) {
     return null;
   }
@@ -120,9 +155,17 @@ const AppContent = () => {
     !session ||
     !isAppPasscodeEnabled ||
     hasEnteredApp;
-
   return (
-    <View style={[styles.appContainer, { backgroundColor: colors.statusBarBackground }]}>
+    <View
+      style={[styles.appContainer, { backgroundColor: colors.statusBarBackground }]}
+      onStartShouldSetResponderCapture={() => {
+        resetInactivityTimeout();
+        return false;
+      }}
+      onMoveShouldSetResponderCapture={() => {
+        resetInactivityTimeout();
+        return false;
+      }}>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={

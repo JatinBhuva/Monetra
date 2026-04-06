@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -36,6 +37,7 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
   const { items, status } = useAppSelector(state => state.categories);
   const [activeType, setActiveType] = useState<CategoryType>('expense');
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [isComposerVisible, setIsComposerVisible] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [draftEmoji, setDraftEmoji] = useState('✨');
   const [draftType, setDraftType] = useState<CategoryType>('expense');
@@ -94,9 +96,12 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
     setDraftEmoji(category.emoji);
     setDraftType(category.type);
     setActiveType(category.type);
-    requestAnimationFrame(() => {
-      scrollRef.current?.scrollTo({ x: 0, y: 0, animated: true });
-    });
+    setIsComposerVisible(true);
+  };
+
+  const beginAdd = () => {
+    resetForm(activeType);
+    setIsComposerVisible(true);
   };
 
   const showValidationMessage = (message: string) => {
@@ -112,6 +117,7 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
   const handleSave = () => {
     const normalizedName = draftName.trim();
     const normalizedEmoji = draftEmoji.trim() || '✨';
+    const nextType = editingCategory?.type ?? draftType;
 
     if (!normalizedName) {
       showValidationMessage(strings.settings.manageCategoriesNameError);
@@ -119,14 +125,14 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
     }
 
     const nextCategory: Category = {
-      id: editingCategory?.id ?? `custom-${draftType}-${Date.now()}`,
-      type: draftType,
+      id: editingCategory?.id ?? `custom-${nextType}-${Date.now()}`,
+      type: nextType,
       name: normalizedName,
       emoji: normalizedEmoji,
       isDefault: editingCategory?.isDefault ?? false,
       labelKey:
         editingCategory &&
-        editingCategory.type === draftType &&
+        editingCategory.type === nextType &&
         resolveCategoryLabel(editingCategory) === normalizedName &&
         editingCategory.emoji === normalizedEmoji
           ? editingCategory.labelKey ?? null
@@ -137,6 +143,7 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
     dispatch(addCategoryRequested(nextCategory));
     setActiveType(draftType);
     resetForm(draftType);
+    setIsComposerVisible(false);
   };
 
   const handleDelete = (category: Category) => {
@@ -162,11 +169,12 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
     );
   };
 
-  const formTitle = editingCategory
-    ? strings.settings.manageCategoriesEditTitle
-    : strings.settings.manageCategoriesAddTitle;
-
   const isBusy = status === 'loading' && items.length === 0;
+  const totalCount = filteredCategories.length;
+  const editingCategoryUsageCount = editingCategory
+    ? usageCounts[editingCategory.id] ?? 0
+    : 0;
+  const canDeleteEditingCategory = editingCategoryUsageCount === 0;
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
@@ -191,15 +199,28 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
         </View>
 
         <View style={styles.segmentedControl}>
-          {(['expense', 'income'] as CategoryType[]).map(type => {
-            const isActive = activeType === type;
+          {[
+            {
+              key: 'expense',
+              label: strings.transactions.expense,
+            },
+            {
+              key: 'income',
+              label: strings.transactions.income,
+            },
+            {
+              key: 'investment',
+              label: strings.analysisScreen.investmentsTitle,
+            },
+          ].map(tab => {
+            const isActive = activeType === tab.key;
             return (
               <Pressable
-                key={type}
+                key={tab.key}
                 onPress={() => {
-                  setActiveType(type);
+                  setActiveType(tab.key as CategoryType);
                   if (!editingCategory) {
-                    setDraftType(type);
+                    setDraftType(tab.key as CategoryType);
                   }
                 }}
                 style={[
@@ -213,92 +234,42 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
                     isActive && styles.segmentTextActive,
                   ]}
                 >
-                  {type === 'expense'
-                    ? strings.transactions.expense
-                    : strings.transactions.income}
+                  {tab.label}
                 </Text>
               </Pressable>
             );
           })}
         </View>
 
-        <View style={styles.formCard}>
-          <View style={styles.formHeader}>
-            <Text style={styles.formTitle}>{formTitle}</Text>
-            {editingCategory ? (
-              <Pressable onPress={() => resetForm(activeType)}>
-                <Text style={styles.cancelEditText}>
-                  {strings.settings.manageCategoriesCancelEdit}
-                </Text>
-              </Pressable>
-            ) : null}
+        <Pressable
+          onPress={beginAdd}
+          style={({ pressed }) => [
+            styles.addCategoryCard,
+            pressed && styles.addCategoryCardPressed,
+          ]}
+        >
+          <View style={styles.addCategoryGlow} />
+          <View style={styles.addCategoryIconWrap}>
+            <Text style={styles.addCategoryIcon}>＋</Text>
           </View>
-
-          <View style={styles.formTypeRow}>
-            {(['expense', 'income'] as CategoryType[]).map(type => {
-              const isActive = draftType === type;
-              return (
-                <Pressable
-                  key={type}
-                  onPress={() => setDraftType(type)}
-                  style={[
-                    styles.formTypeChip,
-                    isActive && styles.formTypeChipActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.formTypeChipText,
-                      isActive && styles.formTypeChipTextActive,
-                    ]}
-                  >
-                    {type === 'expense'
-                      ? strings.transactions.expense
-                      : strings.transactions.income}
-                  </Text>
-                </Pressable>
-              );
-            })}
+          <View style={styles.addCategoryContent}>
+            <Text style={styles.addCategoryTitle}>{strings.settings.manageCategoriesAddButton}</Text>
+            <Text style={styles.addCategorySubtitle}>
+              Organize your vault with custom labels
+            </Text>
           </View>
-
-          <CustomInput
-            label={strings.transactions.categoryNameLabel}
-            value={draftName}
-            onChangeText={setDraftName}
-            placeholder={strings.transactions.categoryNamePlaceholder}
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-          />
-
-          <CustomInput
-            label={strings.transactions.categoryEmojiLabel}
-            value={draftEmoji}
-            onChangeText={setDraftEmoji}
-            placeholder={strings.transactions.categoryEmojiPlaceholder}
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            maxLength={2}
-          />
-
-          <PrimaryActionButton
-            label={
-              editingCategory
-                ? strings.settings.manageCategoriesSaveChanges
-                : strings.settings.manageCategoriesAddButton
-            }
-            onPress={handleSave}
-            backgroundColor={colors.success}
-            style={styles.saveButton}
-          />
-        </View>
+          <Text style={styles.addCategoryArrow}>›</Text>
+        </Pressable>
 
         <View style={styles.listSectionHeader}>
           <Text style={styles.listSectionTitle}>
-            {strings.settings.manageCategoriesListTitle}
+            ACTIVE CATEGORIES
           </Text>
           {isUsageLoading ? (
             <ActivityIndicator size="small" color={colors.success} />
-          ) : null}
+          ) : (
+            <Text style={styles.listSectionCount}>{totalCount} Total</Text>
+          )}
         </View>
 
         {isBusy ? (
@@ -339,38 +310,157 @@ const ManageCategoriesScreen = ({ onBack }: ManageCategoriesScreenProps) => {
                   </Text>
                 </View>
 
-                <View style={styles.categoryActions}>
-                  <Pressable
-                    onPress={() => beginEdit(category)}
-                    style={({ pressed }) => [
-                      styles.actionChip,
-                      pressed && styles.actionChipPressed,
-                    ]}
-                  >
-                    <Text style={styles.actionChipText}>
-                      {strings.settings.manageCategoriesEditAction}
-                    </Text>
-                  </Pressable>
-
-                  {canDelete ? (
-                    <Pressable
-                      onPress={() => handleDelete(category)}
-                      style={({ pressed }) => [
-                        styles.deleteChip,
-                        pressed && styles.actionChipPressed,
-                      ]}
-                    >
-                      <Text style={styles.deleteChipText}>
-                        {strings.settings.manageCategoriesDeleteAction}
-                      </Text>
-                    </Pressable>
-                  ) : null}
-                </View>
+                <Pressable
+                  onPress={() => beginEdit(category)}
+                  style={({ pressed }) => [
+                    styles.editIconButton,
+                    pressed && styles.actionChipPressed,
+                  ]}
+                >
+                  <Text style={styles.editIcon}>✎</Text>
+                </Pressable>
               </View>
             );
           })
         )}
       </ScrollView>
+
+      <Modal
+        transparent
+        animationType="slide"
+        visible={isComposerVisible}
+        onRequestClose={() => {
+          setIsComposerVisible(false);
+          resetForm(activeType);
+        }}
+      >
+        <SafeAreaView edges={['top']} style={styles.composerScreen}>
+          <ScrollView
+            contentContainerStyle={styles.composerContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.composerHeader}>
+              <Pressable
+                onPress={() => {
+                  setIsComposerVisible(false);
+                  resetForm(activeType);
+                }}
+                style={({ pressed }) => [
+                  styles.backButton,
+                  pressed && styles.backButtonPressed,
+                ]}
+              >
+                <Text style={styles.backIcon}>‹</Text>
+              </Pressable>
+              <Text style={styles.composerTitle}>
+                {strings.settings.manageCategoriesScreenTitle}
+              </Text>
+            </View>
+
+            <View style={styles.previewWrap}>
+              <View style={styles.previewCircle}>
+                <Text style={styles.previewEmoji}>{draftEmoji || '✨'}</Text>
+              </View>
+              <View style={styles.previewEditBadge}>
+                <Text style={styles.previewEditIcon}>✎</Text>
+              </View>
+              <Text style={styles.previewLabel}>PREVIEW ICON</Text>
+            </View>
+
+            <Text style={styles.sectionLabel}>CATEGORY NAME</Text>
+            <CustomInput
+              value={draftName}
+              onChangeText={setDraftName}
+              placeholder="e.g. Shopping, Rent, Dividends"
+              containerStyle={styles.composerInputContainer}
+              inputStyle={styles.input}
+            />
+
+            <Text style={styles.sectionLabel}>TRANSACTION TYPE</Text>
+            <View style={styles.formTypeRow}>
+              {[
+                { key: 'expense', label: strings.transactions.expense },
+                { key: 'income', label: strings.transactions.income },
+                { key: 'investment', label: strings.analysisScreen.investmentsTitle },
+              ].map(tab => {
+                const isActive = draftType === tab.key;
+                const isDisabled = Boolean(editingCategory);
+                return (
+                  <Pressable
+                    key={tab.key}
+                    disabled={isDisabled}
+                    onPress={() => {
+                      if (isDisabled) {
+                        return;
+                      }
+                      setDraftType(tab.key as CategoryType);
+                    }}
+                    style={[
+                      styles.formTypeChip,
+                      isActive && styles.formTypeChipActive,
+                      isDisabled && !isActive && styles.formTypeChipDisabled,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.formTypeChipText,
+                        isActive && styles.formTypeChipTextActive,
+                        isDisabled && !isActive && styles.formTypeChipTextDisabled,
+                      ]}
+                    >
+                      {tab.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <CustomInput
+              label="SELECT ICON"
+              value={draftEmoji}
+              onChangeText={setDraftEmoji}
+              placeholder={strings.transactions.categoryEmojiPlaceholder}
+              containerStyle={styles.composerInputContainer}
+              inputStyle={styles.input}
+              maxLength={2}
+            />
+
+            <View style={styles.formActions}>
+              {editingCategory && canDeleteEditingCategory ? (
+                <Pressable
+                  onPress={() => handleDelete(editingCategory)}
+                  style={({ pressed }) => [
+                    styles.deleteChip,
+                    pressed && styles.actionChipPressed,
+                  ]}
+                >
+                  <Text style={styles.deleteChipText}>
+                    {strings.settings.manageCategoriesDeleteAction}
+                  </Text>
+                </Pressable>
+              ) : null}
+              {editingCategory && !canDeleteEditingCategory ? (
+                <Text style={styles.deleteBlockedText}>
+                  {strings.settings.manageCategoriesUsedMeta.replace(
+                    '{count}',
+                    String(editingCategoryUsageCount),
+                  )}
+                </Text>
+              ) : null}
+              <PrimaryActionButton
+                label={
+                  editingCategory
+                    ? strings.settings.manageCategoriesSaveChanges
+                    : 'Save Category'
+                }
+                onPress={handleSave}
+                backgroundColor={colors.success}
+                style={styles.saveButton}
+              />
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };
